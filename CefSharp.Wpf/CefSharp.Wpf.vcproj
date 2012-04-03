@@ -208,6 +208,10 @@
 				RelativePath=".\WebView.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\WebViewEx.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -216,6 +220,10 @@
 			>
 			<File
 				RelativePath=".\WebView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WebViewEx.h"
 				>
 			</File>
 		</Filter>

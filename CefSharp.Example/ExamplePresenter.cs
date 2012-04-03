@@ -48,7 +48,7 @@ namespace CefSharp.Example
             view.DisplayOutput(version);
 
             model.BeforeBrowseHandler = this;
-            model.BeforeResourceLoadHandler = this;
+          //  model.BeforeResourceLoadHandler = this;
             model.PropertyChanged += model_PropertyChanged;
             model.ConsoleMessage += model_ConsoleMessage;
 

@@ -8,11 +8,16 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
 using CefSharp.Example;
+using CefSharp.Wpf;
+using System.IO;
+using System.Text;
 
 namespace CefSharp.Wpf.Example
 {
     public partial class MainWindow : Window, IExampleView
     {
+
+        private const string resource_url = "http://test/resource/load";
         // file
         public event EventHandler ExitActivated;
 
@@ -46,7 +51,7 @@ namespace CefSharp.Wpf.Example
         public MainWindow()
         {
             InitializeComponent();
-
+            web_view.RequestResource += new RequestResourceHandler(OnRequestResource);
             var presenter = new ExamplePresenter(web_view, this,
                 invoke => Dispatcher.BeginInvoke(invoke));
 
@@ -119,6 +124,27 @@ namespace CefSharp.Wpf.Example
         public void DisplayOutput(string output)
         {
             outputLabel.Content = output;
+        }
+
+        private void OnShowDevToolsClick(object sender, RoutedEventArgs e)
+        {
+            web_view.ShowDevTools();
+        }
+
+
+        private void OnRequestResource(IWebBrowser browser, IRequestResponse requestResponse)
+        {
+            IRequest request = requestResponse.Request;
+            if (request.Url.StartsWith(resource_url))
+            {
+                Stream resourceStream = new MemoryStream(Encoding.UTF8.GetBytes(
+                    "<html><body><h1>Success</h1><p>This document is loaded from a System.IO.Stream</p></body></html>"));
+                requestResponse.RespondWith(resourceStream, "text/html");
+            }
+        }
+        private void OnMenuHomeClick(object sender, RoutedEventArgs e)
+        {
+            web_view.EvaluateScript("var testVar = 123;");
         }
 
         private void control_Activated(object sender, RoutedEventArgs e)
