@@ -22,7 +22,7 @@ namespace CefSharp
 		void WebViewEx::OnFrameLoadEnd()
 		{
 			WebView::OnFrameLoadEnd();
-			OnLoadCompleted();
+			Dispatcher->Invoke(gcnew ActionHandler(this, &WebViewEx::OnLoadCompleted)); 
 		}
 		
 		void WebViewEx::OnLoadCompleted()

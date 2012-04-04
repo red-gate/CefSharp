@@ -11,6 +11,11 @@ namespace CefSharp
 
 		public ref class WebViewEx : public WebView, IBeforeResourceLoad
 		{
+		private:
+			
+			delegate void ActionHandler();
+		protected:
+			virtual void Initialize(String^ address, BrowserSettings^ settings) override;
 		public:
 			virtual event RequestResourceHandler^ RequestResource;
 			virtual event EventHandler^ LoadCompleted;
@@ -29,8 +34,6 @@ namespace CefSharp
 			virtual void OnLoadCompleted();
 			
 			virtual void OnFrameLoadEnd() override;
-		protected:
-			virtual void Initialize(String^ address, BrowserSettings^ settings) override;
 		};
 
 	}
