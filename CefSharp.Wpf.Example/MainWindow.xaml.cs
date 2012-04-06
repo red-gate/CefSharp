@@ -52,7 +52,8 @@ namespace CefSharp.Wpf.Example
         {
             InitializeComponent();
             web_view.RequestResource += new RequestResourceHandler(OnRequestResource);
-            web_view.DevToolsShowing += new ShowDevToolsHandler(web_view_DevToolsShowing);
+            web_view.DevToolsShowing += new DevToolsShowingHandler(web_view_DevToolsShowing);
+            web_view.DevToolsShowed += new DevToolsShowedHandler(web_view_DevToolsShowing);
             var presenter = new ExamplePresenter(web_view, this,
                 invoke => Dispatcher.BeginInvoke(invoke));
 
@@ -87,10 +88,40 @@ namespace CefSharp.Wpf.Example
             };
         }
 
+        void web_view_DevToolsShowing(object sender, DevToolsShowingEventArgs args)
+        {
+            debugWindow = new Window();
+            debugWindow.Closed += debugWindow_Closed;
+            args.ChangeParentWindow(debugWindow);
+            debugWindow.Show();
+        }
+        private void OnShowDevToolsClick(object sender, RoutedEventArgs e)
+        {
+            if (debugWindow == null)
+            {
+                web_view.ShowDevTools();
+            }
+            else
+            {
+                debugWindow.Focus();
+            }
+        }
+
+
+        void debugWindow_Closed(object sender, EventArgs e)
+        {
+            debugWindow.Closed -= debugWindow_Closed;
+            web_view.CloseDevTools();
+            debugWindow = null;
+        }
+
+        Window debugWindow = null;
         void web_view_DevToolsShowing(DevToolsControl devToolsControl)
         {
-            Grid.SetRow(devToolsControl, 1);
-            viewContainer.Children.Add(devToolsControl);
+
+            debugWindow.Content = devToolsControl;
+            //Grid.SetRow(devToolsControl, 1);
+            //viewContainer.Children.Add(devToolsControl);
         }
 
         public void SetTitle(string title)
@@ -131,11 +162,6 @@ namespace CefSharp.Wpf.Example
         public void DisplayOutput(string output)
         {
             outputLabel.Content = output;
-        }
-
-        private void OnShowDevToolsClick(object sender, RoutedEventArgs e)
-        {
-             web_view.ShowDevTools();
         }
 
 

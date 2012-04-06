@@ -1,6 +1,7 @@
 #pragma once
 
 #include "WebView.h"
+#include "DevToolsShowingEventArgs.h"
 
 namespace CefSharp
 {
@@ -29,7 +30,8 @@ namespace CefSharp
 			}			
 		};
 		
-		public delegate void ShowDevToolsHandler(DevToolsControl^ devToolsControl);
+		public delegate void DevToolsShowingHandler(Object^ sender, DevToolsShowingEventArgs^ args);
+		public delegate void DevToolsShowedHandler(DevToolsControl^ devToolsControl);
 
 		public ref class WebViewEx : public WebView, IBeforeResourceLoad
 		{
@@ -48,7 +50,8 @@ namespace CefSharp
 			virtual CefRefPtr<RenderClientAdapter> CreateClientAdapter() override;
 		public:
 			virtual event RequestResourceHandler^ RequestResource;
-			virtual event ShowDevToolsHandler^ DevToolsShowing;
+			virtual event DevToolsShowedHandler^ DevToolsShowed;
+			virtual event DevToolsShowingHandler^ DevToolsShowing;
 			virtual event EventHandler^ LoadCompleted;
 			
 			WebViewEx():WebView()

@@ -1,6 +1,7 @@
 
 #include "WebViewEx.h"
 #include "RenderClientAdapterEx.h"
+#include "DevToolsShowingEventArgs.h"
 
 namespace CefSharp
 {
@@ -52,9 +53,19 @@ namespace CefSharp
 
 		IntPtr WebViewEx::GetMainWindowHandle()
 		{
-			Visual^ parent = (Visual^)VisualTreeHelper::GetParent(this);
-			HwndSource^ source = (HwndSource^)PresentationSource::FromVisual(parent);
-			return source->Handle;
+			DevToolsShowingEventArgs^ args = gcnew DevToolsShowingEventArgs();
+
+			DevToolsShowing(this, args);
+			if(args->_customWindow != nullptr)
+			{
+				return (gcnew WindowInteropHelper(args->_customWindow))->Handle;
+			}
+			else
+			{
+				Visual^ parent = (Visual^)VisualTreeHelper::GetParent(this);
+				HwndSource^ source = (HwndSource^)PresentationSource::FromVisual(parent);
+				return source->Handle;
+			}
 		}
 
 		DevToolsControl^ WebViewEx::CreateDevToolsControl(IntPtr handle)
@@ -69,13 +80,13 @@ namespace CefSharp
 				showingDevTools = false;
 				HWND handle = browser->GetWindowHandle();
 				DevToolsControl^ devTools = (DevToolsControl^)Dispatcher->Invoke( gcnew CreateDevToolsControlHandler(this, &WebViewEx::CreateDevToolsControl), IntPtr(handle));
-				Dispatcher->Invoke( gcnew ShowDevToolsHandler(this, &WebViewEx::OnShowDevTools), devTools);
+				Dispatcher->Invoke( gcnew DevToolsShowedHandler(this, &WebViewEx::OnShowDevTools), devTools);
 			}
 		}
 
 		void WebViewEx::OnShowDevTools(DevToolsControl^ devTools)
 		{
-			DevToolsShowing(devTools);
+			DevToolsShowed(devTools);
 		}
 
 		void WebViewEx::OnLoadCompleted()
