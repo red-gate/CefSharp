@@ -15,4 +15,5 @@ obj/
 bin/
 CefSharp/app.aps
 TestResult.xml
+/Debug/
 debug.log

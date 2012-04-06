@@ -55,6 +55,7 @@ namespace Wpf
         void OnMouseButton(MouseButtonEventArgs^ e);
 
     protected:
+		virtual CefRefPtr<RenderClientAdapter> CreateClientAdapter();
         virtual void Initialize(String^ address, BrowserSettings^ settings);
         virtual Size ArrangeOverride(Size size) override;
         virtual void OnGotFocus(RoutedEventArgs^ e) override;

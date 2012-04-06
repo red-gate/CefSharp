@@ -39,6 +39,11 @@ namespace Wpf
             gcnew EventHandler(this, &WebView::Timer_Tick);
     }
 
+    CefRefPtr<RenderClientAdapter> WebView::CreateClientAdapter()
+    {
+		return new RenderClientAdapter(this);
+	}
+
     bool WebView::TryGetCefBrowser(CefRefPtr<CefBrowser>& browser)
     {
         if (_browserCore->IsBrowserInitialized)
@@ -559,7 +564,7 @@ namespace Wpf
     {
         ContentControl::OnApplyTemplate();
 
-        _clientAdapter = new RenderClientAdapter(this);
+		_clientAdapter = CreateClientAdapter().get();
 
         Visual^ parent = (Visual^)VisualTreeHelper::GetParent(this);
         HwndSource^ source = (HwndSource^)PresentationSource::FromVisual(parent);
