@@ -86,7 +86,11 @@ namespace CefSharp.Wpf.Example
                 { backButton, BackActivated },
                 { forwardButton, ForwardActivated },
             };
+
+           //CEF.RegisterScheme("chrome-devtools", "devtools", false, new DelegateSchemeHandlerFactory(OnTestRequest));
         }
+
+     
 
         void web_view_DevToolsShowing(object sender, DevToolsShowingEventArgs args)
         {

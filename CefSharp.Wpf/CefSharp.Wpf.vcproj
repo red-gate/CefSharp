@@ -201,6 +201,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DelegateSchemeHandlerFactory.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\RenderClientAdapterEx.cpp"
 				>
 			</File>
@@ -222,6 +226,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\DelegateSchemeHandlerFactory.h"
+				>
+			</File>
 			<File
 				RelativePath=".\DevToolsShowingEventArgs.h"
 				>
