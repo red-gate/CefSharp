@@ -1,4 +1,5 @@
 
+#include "CefBrowserImplEx.h"
 #include "WebViewEx.h"
 #include "RenderClientAdapterEx.h"
 #include "DevToolsShowingEventArgs.h"
@@ -45,8 +46,11 @@ namespace CefSharp
 			{
 				showingDevTools = true;
 				IntPtr mwHandle = (IntPtr)Dispatcher->Invoke( gcnew GetMainWindowHandleHandler(this, &WebViewEx::GetMainWindowHandle));
-				RECT rect;
-				windowInfo.SetAsChild(static_cast<HWND>(mwHandle.ToPointer()), rect);
+				if(mwHandle != IntPtr::Zero)
+				{
+					RECT rect;
+					windowInfo.SetAsChild(static_cast<HWND>(mwHandle.ToPointer()), rect);
+				}
 			}			
 			return false;
 		}
@@ -60,12 +64,7 @@ namespace CefSharp
 			{
 				return (gcnew WindowInteropHelper(args->_customWindow))->Handle;
 			}
-			else
-			{
-				Visual^ parent = (Visual^)VisualTreeHelper::GetParent(this);
-				HwndSource^ source = (HwndSource^)PresentationSource::FromVisual(parent);
-				return source->Handle;
-			}
+			return IntPtr::Zero;
 		}
 
 		DevToolsControl^ WebViewEx::CreateDevToolsControl(IntPtr handle)

@@ -13,7 +13,7 @@ namespace CefSharp{
 			{
 
 			}
-			void ChangeParentWindow(Window^ customWindow)
+			void SetParentWindow(Window^ customWindow)
 			{
 				_customWindow = customWindow;
 			}
