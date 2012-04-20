@@ -47,6 +47,13 @@ extern "C" {
 #define cef_cursor_handle_t HCURSOR
 
 ///
+// Structure representing CefExecuteProcess arguments.
+///
+typedef struct _cef_main_args_t {
+  HINSTANCE instance;
+} cef_main_args_t;
+
+///
 // Supported graphics implementations.
 ///
 enum cef_graphics_implementation_t {
@@ -57,40 +64,26 @@ enum cef_graphics_implementation_t {
 };
 
 ///
-// Class representing window information.
+// Structure representing window information.
 ///
 typedef struct _cef_window_info_t {
   // Standard parameters required by CreateWindowEx()
-  DWORD m_dwExStyle;
-  cef_string_t m_windowName;
-  DWORD m_dwStyle;
-  int m_x;
-  int m_y;
-  int m_nWidth;
-  int m_nHeight;
-  cef_window_handle_t m_hWndParent;
-  HMENU m_hMenu;
-
-  // If window rendering is disabled no browser window will be created. Set
-  // |m_hWndParent| to the window that will act as the parent for popup menus,
-  // dialog boxes, etc.
-  BOOL m_bWindowRenderingDisabled;
+  DWORD ex_style;
+  cef_string_t window_name;
+  DWORD style;
+  int x;
+  int y;
+  int width;
+  int height;
+  cef_window_handle_t parent_window;
+  HMENU menu;
 
   // Set to true to enable transparent painting.
-  BOOL m_bTransparentPainting;
+  BOOL transparent_painting;
 
   // Handle for the new browser window.
-  cef_window_handle_t m_hWnd;
+  cef_window_handle_t window;
 } cef_window_info_t;
-
-///
-// Class representing print context information.
-///
-typedef struct _cef_print_info_t {
-  HDC m_hDC;
-  RECT m_Rect;
-  double m_Scale;
-} cef_print_info_t;
 
 #ifdef __cplusplus
 }

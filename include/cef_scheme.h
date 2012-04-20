@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -40,10 +40,11 @@
 
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
-#include "include/cef_response.h"
+#include "include/cef_frame.h"
 #include "include/cef_request.h"
+#include "include/cef_response.h"
+#include "include/cef_resource_handler.h"
 
-class CefSchemeHandler;
 class CefSchemeHandlerFactory;
 
 ///
@@ -110,9 +111,10 @@ bool CefRegisterCustomScheme(const CefString& scheme_name,
 // Returns false if an error occurs. This function may be called on any thread.
 ///
 /*--cef(optional_param=domain_name,optional_param=factory)--*/
-bool CefRegisterSchemeHandlerFactory(const CefString& scheme_name,
-                                    const CefString& domain_name,
-                                    CefRefPtr<CefSchemeHandlerFactory> factory);
+bool CefRegisterSchemeHandlerFactory(
+    const CefString& scheme_name,
+    const CefString& domain_name,
+    CefRefPtr<CefSchemeHandlerFactory> factory);
 
 ///
 // Clear all registered scheme handler factories. Returns false on error. This
@@ -123,100 +125,24 @@ bool CefClearSchemeHandlerFactories();
 
 
 ///
-// Class that creates CefSchemeHandler instances. The methods of this class will
-// always be called on the IO thread.
+// Class that creates CefResourceHandler instances for handling scheme requests. The
+// methods of this class will always be called on the IO thread.
 ///
 /*--cef(source=client)--*/
 class CefSchemeHandlerFactory : public virtual CefBase {
  public:
   ///
-  // Return a new scheme handler instance to handle the request. |browser| will
+  // Return a new resource handler instance to handle the request. |browser| will
   // be the browser window that initiated the request. If the request was
   // initiated using the CefWebURLRequest API |browser| will be NULL. The
   // |request| object passed to this method will not contain cookie data.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefSchemeHandler> Create(CefRefPtr<CefBrowser> browser,
-                                             const CefString& scheme_name,
-                                             CefRefPtr<CefRequest> request) =0;
-};
-
-///
-// Class used to facilitate asynchronous responses to custom scheme handler
-// requests. The methods of this class may be called on any thread.
-///
-/*--cef(source=library)--*/
-class CefSchemeHandlerCallback : public virtual CefBase {
- public:
-  ///
-  // Notify that header information is now available for retrieval.
-  ///
-  /*--cef()--*/
-  virtual void HeadersAvailable() =0;
-
-  ///
-  // Notify that response data is now available for reading.
-  ///
-  /*--cef()--*/
-  virtual void BytesAvailable() =0;
-
-  ///
-  // Cancel processing of the request.
-  ///
-  /*--cef()--*/
-  virtual void Cancel() =0;
-};
-
-///
-// Class used to implement a custom scheme handler interface. The methods of
-// this class will always be called on the IO thread.
-///
-/*--cef(source=client)--*/
-class CefSchemeHandler : public virtual CefBase {
- public:
-  ///
-  // Begin processing the request. To handle the request return true and call
-  // HeadersAvailable() once the response header information is available
-  // (HeadersAvailable() can also be called from inside this method if header
-  // information is available immediately). To cancel the request return false.
-  ///
-  /*--cef()--*/
-  virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              CefRefPtr<CefSchemeHandlerCallback> callback) =0;
-
-  ///
-  // Retrieve response header information. If the response length is not known
-  // set |response_length| to -1 and ReadResponse() will be called until it
-  // returns false. If the response length is known set |response_length|
-  // to a positive value and ReadResponse() will be called until it returns
-  // false or the specified number of bytes have been read. Use the |response|
-  // object to set the mime type, http status code and other optional header
-  // values. To redirect the request to a new URL set |redirectUrl| to the new
-  // URL.
-  ///
-  /*--cef()--*/
-  virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                                  int64& response_length,
-                                  CefString& redirectUrl) =0;
-
-  ///
-  // Read response data. If data is available immediately copy up to
-  // |bytes_to_read| bytes into |data_out|, set |bytes_read| to the number of
-  // bytes copied, and return true. To read the data at a later time set
-  // |bytes_read| to 0, return true and call BytesAvailable() when the data is
-  // available. To indicate response completion return false.
-  ///
-  /*--cef()--*/
-  virtual bool ReadResponse(void* data_out,
-                            int bytes_to_read,
-                            int& bytes_read,
-                            CefRefPtr<CefSchemeHandlerCallback> callback) =0;
-
-  ///
-  // Request processing has been canceled.
-  ///
-  /*--cef()--*/
-  virtual void Cancel() =0;
+  virtual CefRefPtr<CefResourceHandler> Create(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      const CefString& scheme_name,
+      CefRefPtr<CefRequest> request) =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_SCHEME_H_

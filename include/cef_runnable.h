@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. Portions Copyright (c)
+// Copyright (c) 2012 Marshall A. Greenblatt. Portions Copyright (c)
 // 2006-2011 Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without

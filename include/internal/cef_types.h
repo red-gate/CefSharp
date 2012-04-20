@@ -61,6 +61,20 @@ typedef long long           int64;  // NOLINT(runtime/int)
 typedef unsigned long long  uint64;  // NOLINT(runtime/int)
 #endif
 
+// TODO: Remove these type guards.  These are to avoid conflicts with
+// obsolete/protypes.h in the Gecko SDK.
+#ifndef _INT32
+#define _INT32
+typedef int                 int32;
+#endif
+
+// TODO: Remove these type guards.  These are to avoid conflicts with
+// obsolete/protypes.h in the Gecko SDK.
+#ifndef _UINT32
+#define _UINT32
+typedef unsigned int       uint32;
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -89,16 +103,38 @@ typedef struct _cef_settings_t {
   size_t size;
 
   ///
-  // Set to true (1) to have the message loop run in a separate thread. If
-  // false (0) than the CefDoMessageLoopWork() function must be called from
-  // your application message loop.
+  // Set to true (1) to use a single process for the browser and renderer. This
+  // run mode is not officially supported by Chromium and is less stable than
+  // the multi-process default.
+  ///
+  bool single_process;
+
+  ///
+  // The path to a separate executable that will be launched for sub-processes.
+  // By default the browser process executable is used. See the comments on
+  // CefExecuteProcess() for details.
+  ///
+  cef_string_t browser_subprocess_path;
+
+  ///
+  // Set to true (1) to have the browser process message loop run in a separate
+  // thread. If false (0) than the CefDoMessageLoopWork() function must be
+  // called from your application message loop.
   ///
   bool multi_threaded_message_loop;
 
   ///
-  // The location where cache data will be stored on disk. If empty an
-  // in-memory cache will be used. HTML5 databases such as localStorage will
-  // only persist across sessions if a cache path is specified.
+  // Set to true (1) to disable configuration of browser process features using
+  // standard CEF and Chromium command-line arguments. Configuration can still
+  // be specified using CEF data structures or via the
+  // CefApp::OnBeforeCommandLineProcessing() method.
+  ///
+  bool command_line_args_disabled;
+
+  ///
+  // The location where cache data will be stored on disk. If empty an in-memory
+  // cache will be used. HTML5 databases such as localStorage will only persist
+  // across sessions if a cache path is specified.
   ///
   cef_string_t cache_path;
 
@@ -191,7 +227,7 @@ typedef struct _cef_settings_t {
 
   ///
   // Set to true (1) to disable loading of pack files for resources and locales.
-  // A resource bundle handler must be provided for the browser and renderer
+  // A resource bundle handler must be provided for the browser and render
   // processes via CefApp::GetResourceBundleHandler() if loading of pack files
   // is disabled.
   ///
@@ -391,11 +427,9 @@ typedef struct _cef_browser_settings_t {
   bool webgl_disabled;
 
   ///
-  // Set to true (1) to enable accelerated compositing. This is turned off by
-  // default because the current in-process GPU implementation does not
-  // support it correctly.
+  // Set to true (1) to disable accelerated compositing.
   ///
-  bool accelerated_compositing_enabled;
+  bool accelerated_compositing_disabled;
 
   ///
   // Set to true (1) to disable accelerated layers. This affects features like
@@ -414,14 +448,14 @@ typedef struct _cef_browser_settings_t {
   bool accelerated_2d_canvas_disabled;
 
   ///
-  // Set to true (1) to disable accelerated painting.
+  // Set to true (1) to enable accelerated painting.
   ///
-  bool accelerated_painting_disabled;
+  bool accelerated_painting_enabled;
 
   ///
-  // Set to true (1) to disable accelerated filters.
+  // Set to true (1) to enable accelerated filters.
   ///
-  bool accelerated_filters_disabled;
+  bool accelerated_filters_enabled;
 
   ///
   // Set to true (1) to disable accelerated plugins.
@@ -550,37 +584,6 @@ enum cef_storage_type_t {
 };
 
 ///
-// Mouse button types.
-///
-enum cef_mouse_button_type_t {
-  MBT_LEFT   = 0,
-  MBT_MIDDLE,
-  MBT_RIGHT,
-};
-
-///
-// Key types.
-///
-enum cef_key_type_t {
-  KT_KEYUP    = 0,
-  KT_KEYDOWN,
-  KT_CHAR,
-};
-
-///
-// Various browser navigation types supported by chrome.
-///
-enum cef_handler_navtype_t {
-  NAVTYPE_LINKCLICKED = 0,
-  NAVTYPE_FORMSUBMITTED,
-  NAVTYPE_BACKFORWARD,
-  NAVTYPE_RELOAD,
-  NAVTYPE_FORMRESUBMITTED,
-  NAVTYPE_OTHER,
-  NAVTYPE_LINKDROPPED,
-};
-
-///
 // Supported error code values. See net\base\net_error_list.h for complete
 // descriptions of the error codes.
 ///
@@ -636,22 +639,6 @@ enum cef_handler_errorcode_t {
 };
 
 ///
-// "Verb" of a drag-and-drop operation as negotiated between the source and
-// destination. These constants match their equivalents in WebCore's
-// DragActions.h and should not be renumbered.
-///
-enum cef_drag_operations_mask_t {
-    DRAG_OPERATION_NONE    = 0,
-    DRAG_OPERATION_COPY    = 1,
-    DRAG_OPERATION_LINK    = 2,
-    DRAG_OPERATION_GENERIC = 4,
-    DRAG_OPERATION_PRIVATE = 8,
-    DRAG_OPERATION_MOVE    = 16,
-    DRAG_OPERATION_DELETE  = 32,
-    DRAG_OPERATION_EVERY   = UINT_MAX
-};
-
-///
 // V8 access control values.
 ///
 enum cef_v8_accesscontrol_t {
@@ -673,129 +660,6 @@ enum cef_v8_propertyattribute_t {
 };
 
 ///
-// Structure representing menu information.
-///
-typedef struct _cef_menu_info_t {
-  ///
-  // Values from the cef_handler_menutypebits_t enumeration.
-  ///
-  int typeFlags;
-
-  ///
-  // If window rendering is enabled |x| and |y| will be in screen coordinates.
-  // Otherwise, |x| and |y| will be in view coordinates.
-  ///
-  int x;
-  int y;
-
-  cef_string_t linkUrl;
-  cef_string_t imageUrl;
-  cef_string_t pageUrl;
-  cef_string_t frameUrl;
-  cef_string_t selectionText;
-  cef_string_t misspelledWord;
-
-  ///
-  // Values from the cef_handler_menucapabilitybits_t enumeration.
-  ///
-  int editFlags;
-
-  cef_string_t securityInfo;
-} cef_menu_info_t;
-
-///
-// The cef_menu_info_t typeFlags value will be a combination of the
-// following values.
-///
-enum cef_menu_typebits_t {
-  ///
-  // No node is selected
-  ///
-  MENUTYPE_NONE = 0x0,
-  ///
-  // The top page is selected
-  ///
-  MENUTYPE_PAGE = 0x1,
-  ///
-  // A subframe page is selected
-  ///
-  MENUTYPE_FRAME = 0x2,
-  ///
-  // A link is selected
-  ///
-  MENUTYPE_LINK = 0x4,
-  ///
-  // An image is selected
-  ///
-  MENUTYPE_IMAGE = 0x8,
-  ///
-  // There is a textual or mixed selection that is selected
-  ///
-  MENUTYPE_SELECTION = 0x10,
-  ///
-  // An editable element is selected
-  ///
-  MENUTYPE_EDITABLE = 0x20,
-  ///
-  // A misspelled word is selected
-  ///
-  MENUTYPE_MISSPELLED_WORD = 0x40,
-  ///
-  // A video node is selected
-  ///
-  MENUTYPE_VIDEO = 0x80,
-  ///
-  // A video node is selected
-  ///
-  MENUTYPE_AUDIO = 0x100,
-};
-
-///
-// The cef_menu_info_t editFlags value will be a combination of the
-// following values.
-///
-enum cef_menu_capabilitybits_t {
-  // Values from WebContextMenuData::EditFlags in WebContextMenuData.h
-  MENU_CAN_DO_NONE = 0x0,
-  MENU_CAN_UNDO = 0x1,
-  MENU_CAN_REDO = 0x2,
-  MENU_CAN_CUT = 0x4,
-  MENU_CAN_COPY = 0x8,
-  MENU_CAN_PASTE = 0x10,
-  MENU_CAN_DELETE = 0x20,
-  MENU_CAN_SELECT_ALL = 0x40,
-  MENU_CAN_TRANSLATE = 0x80,
-  // Values unique to CEF
-  MENU_CAN_GO_FORWARD = 0x10000000,
-  MENU_CAN_GO_BACK = 0x20000000,
-};
-
-///
-// Supported menu ID values.
-///
-enum cef_menu_id_t {
-  MENU_ID_NAV_BACK = 10,
-  MENU_ID_NAV_FORWARD = 11,
-  MENU_ID_NAV_RELOAD = 12,
-  MENU_ID_NAV_RELOAD_NOCACHE = 13,
-  MENU_ID_NAV_STOP = 14,
-  MENU_ID_UNDO = 20,
-  MENU_ID_REDO = 21,
-  MENU_ID_CUT = 22,
-  MENU_ID_COPY = 23,
-  MENU_ID_PASTE = 24,
-  MENU_ID_DELETE = 25,
-  MENU_ID_SELECTALL = 26,
-  MENU_ID_PRINT = 30,
-  MENU_ID_VIEWSOURCE = 31,
-};
-
-enum cef_paint_element_type_t {
-  PET_VIEW  = 0,
-  PET_POPUP,
-};
-
-///
 // Post data elements may represent either bytes or files.
 ///
 enum cef_postdataelement_type_t {
@@ -814,54 +678,6 @@ enum cef_weburlrequest_flags_t {
   WUR_FLAG_REPORT_RAW_HEADERS = 0x20
 };
 
-enum cef_weburlrequest_state_t {
-  WUR_STATE_UNSENT = 0,
-  WUR_STATE_STARTED = 1,
-  WUR_STATE_HEADERS_RECEIVED = 2,
-  WUR_STATE_LOADING = 3,
-  WUR_STATE_DONE = 4,
-  WUR_STATE_ERROR = 5,
-  WUR_STATE_ABORT = 6,
-};
-
-///
-// Focus sources.
-///
-enum cef_handler_focus_source_t {
-  ///
-  // The source is explicit navigation via the API (LoadURL(), etc).
-  ///
-  FOCUS_SOURCE_NAVIGATION = 0,
-  ///
-  // The source is a system-generated focus event.
-  ///
-  FOCUS_SOURCE_SYSTEM,
-  ///
-  // The source is a child widget of the browser window requesting focus.
-  ///
-  FOCUS_SOURCE_WIDGET,
-};
-
-///
-// Key event types.
-///
-enum cef_handler_keyevent_type_t {
-  KEYEVENT_RAWKEYDOWN = 0,
-  KEYEVENT_KEYDOWN,
-  KEYEVENT_KEYUP,
-  KEYEVENT_CHAR
-};
-
-///
-// Key event modifiers.
-///
-enum cef_handler_keyevent_modifiers_t {
-  KEY_SHIFT = 1 << 0,
-  KEY_CTRL  = 1 << 1,
-  KEY_ALT   = 1 << 2,
-  KEY_META  = 1 << 3
-};
-
 ///
 // Structure representing a rectangle.
 ///
@@ -873,67 +689,85 @@ typedef struct _cef_rect_t {
 } cef_rect_t;
 
 ///
+// Existing process IDs.
+///
+enum cef_process_id_t {
+  ///
+  // Browser process.
+  ///
+  PID_BROWSER,
+  ///
+  // Renderer process.
+  ///
+  PID_RENDERER,
+};
+
+///
 // Existing thread IDs.
 ///
 enum cef_thread_id_t {
-  TID_UI      = 0,
-  TID_IO      = 1,
-  TID_FILE    = 2,
+// BROWSER PROCESS THREADS -- Only available in the browser process.
+
+  ///
+  // The main thread in the browser. This will be the same as the main
+  // application thread if CefInitialize() is called with a
+  // CefSettings.multi_threaded_message_loop value of false.
+  ///
+  TID_UI,
+
+  ///
+  // Used to interact with the database.
+  ///
+  TID_DB,
+
+  ///
+  // Used to interact with the file system.
+  ///
+  TID_FILE,
+
+  ///
+  // Used for file system operations that block user interactions.
+  // Responsiveness of this thread affects users.
+  ///
+  TID_FILE_USER_BLOCKING,
+
+  ///
+  // Used to launch and terminate browser processes.
+  ///
+  TID_PROCESS_LAUNCHER,
+
+  ///
+  // Used to handle slow HTTP cache operations.
+  ///
+  TID_CACHE,
+
+  ///
+  // Used to process IPC and network messages.
+  ///
+  TID_IO,
+
+// RENDER PROCESS THREADS -- Only available in the render process.
+
+  ///
+  // The main thread in the renderer. Used for all WebKit and V8 interaction.
+  ///
+  TID_RENDERER,
 };
 
 ///
-// Paper type for printing.
+// Supported value types.
 ///
-enum cef_paper_type_t {
-  PT_LETTER = 0,
-  PT_LEGAL,
-  PT_EXECUTIVE,
-  PT_A3,
-  PT_A4,
-  PT_CUSTOM
+enum cef_value_type_t {
+  VTYPE_INVALID = 0,
+  VTYPE_NULL,
+  VTYPE_BOOL,
+  VTYPE_INT,
+  VTYPE_DOUBLE,
+  VTYPE_STRING,
+  VTYPE_BINARY,
+  VTYPE_DICTIONARY,
+  VTYPE_LIST,
 };
-
-///
-// Paper metric information for printing.
-///
-struct cef_paper_metrics {
-  enum cef_paper_type_t paper_type;
-  // Length and width needed if paper_type is custom_size
-  // Units are in inches.
-  double length;
-  double width;
-};
-
-///
-// Paper print margins.
-///
-struct cef_print_margins {
-  // Margin size in inches for left/right/top/bottom (this is content margins).
-  double left;
-  double right;
-  double top;
-  double bottom;
-  // Margin size (top/bottom) in inches for header/footer.
-  double header;
-  double footer;
-};
-
-///
-// Page orientation for printing.
-///
-enum cef_page_orientation {
-  PORTRAIT = 0,
-  LANDSCAPE
-};
-
-///
-// Printing options.
-///
-typedef struct _cef_print_options_t {
-  enum cef_page_orientation page_orientation;
-  struct cef_paper_metrics paper_metrics;
-  struct cef_print_margins paper_margins;
-} cef_print_options_t;
 
 ///
 // Supported XML encoding types. The parser supports ASCII, ISO-8859-1, and
@@ -999,72 +833,6 @@ typedef struct _cef_popup_features_t {
   bool dialog;
   cef_string_list_t additionalFeatures;
 } cef_popup_features_t;
-
-///
-// DOM document types.
-///
-enum cef_dom_document_type_t {
-  DOM_DOCUMENT_TYPE_UNKNOWN = 0,
-  DOM_DOCUMENT_TYPE_HTML,
-  DOM_DOCUMENT_TYPE_XHTML,
-  DOM_DOCUMENT_TYPE_PLUGIN,
-};
-
-///
-// DOM event category flags.
-///
-enum cef_dom_event_category_t {
-  DOM_EVENT_CATEGORY_UNKNOWN = 0x0,
-  DOM_EVENT_CATEGORY_UI = 0x1,
-  DOM_EVENT_CATEGORY_MOUSE = 0x2,
-  DOM_EVENT_CATEGORY_MUTATION = 0x4,
-  DOM_EVENT_CATEGORY_KEYBOARD = 0x8,
-  DOM_EVENT_CATEGORY_TEXT = 0x10,
-  DOM_EVENT_CATEGORY_COMPOSITION = 0x20,
-  DOM_EVENT_CATEGORY_DRAG = 0x40,
-  DOM_EVENT_CATEGORY_CLIPBOARD = 0x80,
-  DOM_EVENT_CATEGORY_MESSAGE = 0x100,
-  DOM_EVENT_CATEGORY_WHEEL = 0x200,
-  DOM_EVENT_CATEGORY_BEFORE_TEXT_INSERTED = 0x400,
-  DOM_EVENT_CATEGORY_OVERFLOW = 0x800,
-  DOM_EVENT_CATEGORY_PAGE_TRANSITION = 0x1000,
-  DOM_EVENT_CATEGORY_POPSTATE = 0x2000,
-  DOM_EVENT_CATEGORY_PROGRESS = 0x4000,
-  DOM_EVENT_CATEGORY_XMLHTTPREQUEST_PROGRESS = 0x8000,
-  DOM_EVENT_CATEGORY_WEBKIT_ANIMATION = 0x10000,
-  DOM_EVENT_CATEGORY_WEBKIT_TRANSITION = 0x20000,
-  DOM_EVENT_CATEGORY_BEFORE_LOAD = 0x40000,
-};
-
-///
-// DOM event processing phases.
-///
-enum cef_dom_event_phase_t {
-  DOM_EVENT_PHASE_UNKNOWN = 0,
-  DOM_EVENT_PHASE_CAPTURING,
-  DOM_EVENT_PHASE_AT_TARGET,
-  DOM_EVENT_PHASE_BUBBLING,
-};
-
-///
-// DOM node types.
-///
-enum cef_dom_node_type_t {
-  DOM_NODE_TYPE_UNSUPPORTED = 0,
-  DOM_NODE_TYPE_ELEMENT,
-  DOM_NODE_TYPE_ATTRIBUTE,
-  DOM_NODE_TYPE_TEXT,
-  DOM_NODE_TYPE_CDATA_SECTION,
-  DOM_NODE_TYPE_ENTITY_REFERENCE,
-  DOM_NODE_TYPE_ENTITY,
-  DOM_NODE_TYPE_PROCESSING_INSTRUCTIONS,
-  DOM_NODE_TYPE_COMMENT,
-  DOM_NODE_TYPE_DOCUMENT,
-  DOM_NODE_TYPE_DOCUMENT_TYPE,
-  DOM_NODE_TYPE_DOCUMENT_FRAGMENT,
-  DOM_NODE_TYPE_NOTATION,
-  DOM_NODE_TYPE_XPATH_NAMESPACE,
-};
 
 ///
 // Proxy types.
