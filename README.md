@@ -1,3 +1,13 @@
+# CEF3 Branch Information
+
+This is an experimental binding of CEF3. CEF3 is not feature complete or stable at this time.
+
+Links:
+
+ - [CEF3 development status message board thread](http://magpcss.org/ceforum/viewtopic.php?f=10&t=645)
+ - [CEF3 Preview 3.1082.566](http://code.google.com/p/chromiumembedded/downloads/detail?name=cef_preview_3.1082.566_windows.zip&can=2&q=)
+ - [CEF issues tagged with the CEF3 label](http://code.google.com/p/chromiumembedded/issues/list?q=label:CEF3)
+
 # CefSharp - Embedded Chromium for .Net
 
 This project contains .Net CLR bindings for The [Chromium Embedded Framework (CEF)](http://code.google.com/p/chromiumembedded/ "Google Code") by Marshall A. Greenblatt. The bindings are written in C++/CLI but can be used from any CLR language e.g. C# or VB. CefSharp provides both WinForms and WPF web browser control implementations. See the CefSharp.WinForms.Example or CefSharp.Wpf.Example projects for example web browsers built using this library.
