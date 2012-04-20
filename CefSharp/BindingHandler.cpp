@@ -248,11 +248,10 @@ namespace CefSharp
     {
         CefRefPtr<BindingData> bindingData = new BindingData(obj);
         CefRefPtr<CefBase> userData = static_cast<CefRefPtr<CefBase>>(bindingData);
-        CefRefPtr<CefV8Value> wrappedObject = window->CreateObject(userData, NULL);
+        CefRefPtr<CefV8Value> wrappedObject = window->CreateObject(NULL);
         CefRefPtr<CefV8Handler> handler = static_cast<CefV8Handler*>(new BindingHandler());
 
         array<MethodInfo^>^ methods = obj->GetType()->GetMethods(BindingFlags::Instance | BindingFlags::Public);
-
         IList<String^>^ methodNames = gcnew List<String^>();
         for each(MethodInfo^ method in methods) 
         {
@@ -262,6 +261,7 @@ namespace CefSharp
             }
         }
 
+        wrappedObject->SetUserData(userData);
         for each(String^ methodName in methodNames)
         {
             CefString nameStr = toNative(methodName);

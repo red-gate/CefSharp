@@ -20,30 +20,26 @@ namespace CefSharp
             CefRefPtr<CefV8Value> global = context->GetGlobal();
             CefRefPtr<CefV8Value> eval = global->GetValue("eval");
             CefRefPtr<CefV8Value> arg = CefV8Value::CreateString(script);
-            CefRefPtr<CefV8Value> result;
-            CefRefPtr<CefV8Exception> exception;
 
             CefV8ValueList args;
             args.push_back(arg);
 
-            if (eval->ExecuteFunctionWithContext(context, global, args,
-                result, exception, false))
+            CefRefPtr<CefV8Value> result =
+                eval->ExecuteFunctionWithContext(context, global, args);
+
+            if (!result.get())
             {
-                if (exception)
+                _exception = "Unknown";
+            }
+            else
+            {
+                try
                 {
-                    CefString message = exception->GetMessage();
-                    _exception = toClr(message);
+                    _result = convertFromCef(result);
                 }
-                else
+                catch (Exception^ ex)
                 {
-                    try
-                    {
-                        _result = convertFromCef(result);
-                    }
-                    catch (Exception^ ex)
-                    {
-                        _exception = ex->Message;
-                    }
+                    _exception = ex->Message;
                 }
             }
 
