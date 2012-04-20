@@ -48,7 +48,7 @@ namespace WinForms
             GetClientRect(hWnd, &rect);
             window.SetAsChild(hWnd, rect);
 
-            CefBrowser::CreateBrowser(window, _clientAdapter.get(),
+            CefBrowserHost::CreateBrowser(window, _clientAdapter.get(),
                 url, *_settings->_browserSettings);
         }
     }
@@ -76,7 +76,7 @@ namespace WinForms
         if (!DesignMode &&
             TryGetCefBrowser(browser))
         {
-            browser->SetFocus(true);
+            browser->GetHost()->SetFocus(true);
         }
     }
 
@@ -166,6 +166,7 @@ namespace WinForms
 
     void WebView::ClearHistory()
     {
+        /*
         _browserCore->CheckBrowserInitialization();
 
         CefRefPtr<CefBrowser> browser;
@@ -173,10 +174,12 @@ namespace WinForms
         {
             browser->ClearHistory();
         }
+        */
     }
 
     void WebView::ShowDevTools()
     {
+        /*
         _browserCore->CheckBrowserInitialization();
 
         CefRefPtr<CefBrowser> browser;
@@ -184,10 +187,12 @@ namespace WinForms
         {
             browser->ShowDevTools();
         }
+        */
     }
 
     void WebView::CloseDevTools()
     {
+        /*
         _browserCore->CheckBrowserInitialization();
 
         CefRefPtr<CefBrowser> browser;
@@ -195,6 +200,7 @@ namespace WinForms
         {
             browser->CloseDevTools();
         }
+        */
     }
 
     void WebView::Undo()
@@ -276,6 +282,7 @@ namespace WinForms
 
     void WebView::Print()
     {
+        /*
         _browserCore->CheckBrowserInitialization();
 
         CefRefPtr<CefBrowser> browser;
@@ -283,6 +290,7 @@ namespace WinForms
         {
             browser->GetMainFrame()->Print();
         }
+        */
     }
 
     void WebView::ExecuteScript(String^ script)

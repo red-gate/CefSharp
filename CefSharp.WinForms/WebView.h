@@ -60,7 +60,7 @@ namespace WinForms
             CefRefPtr<CefBrowser> browser;
             if (TryGetCefBrowser(browser))
             {
-                browser->CloseBrowser();
+                browser->GetHost()->CloseBrowser();
             }
         }
 

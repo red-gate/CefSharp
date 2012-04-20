@@ -265,10 +265,10 @@ namespace CefSharp
             void set(bool value) { _browserSettings->webgl_disabled = value; }
         }
 
-        property bool AcceleratedCompositingEnabled
+        property bool AcceleratedCompositingDisabled
         {
-            bool get() { return _browserSettings->accelerated_compositing_enabled; }
-            void set(bool value) { _browserSettings->accelerated_compositing_enabled = value; }
+            bool get() { return _browserSettings->accelerated_compositing_disabled; }
+            void set(bool value) { _browserSettings->accelerated_compositing_disabled = value; }
         }
 
         property bool AcceleratedLayersDisabled
@@ -283,16 +283,16 @@ namespace CefSharp
             void set(bool value) { _browserSettings->accelerated_2d_canvas_disabled = value; }
         }
 
-        property bool AcceleratedPaintingDisabled
+        property bool AcceleratedPaintingEnabled
         {
-            bool get() { return _browserSettings->accelerated_painting_disabled; }
-            void set(bool value) { _browserSettings->accelerated_painting_disabled = value; }
+            bool get() { return _browserSettings->accelerated_painting_enabled; }
+            void set(bool value) { _browserSettings->accelerated_painting_enabled = value; }
         }
 
-        property bool AcceleratedFiltersDisabled
+        property bool AcceleratedFiltersEnabled
         {
-            bool get() { return _browserSettings->accelerated_filters_disabled; }
-            void set(bool value) { _browserSettings->accelerated_filters_disabled = value; }
+            bool get() { return _browserSettings->accelerated_filters_enabled; }
+            void set(bool value) { _browserSettings->accelerated_filters_enabled = value; }
         }
 
         property bool AcceleratedPluginsDisabled
