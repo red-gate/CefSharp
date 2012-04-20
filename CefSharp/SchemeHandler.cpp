@@ -11,7 +11,7 @@ namespace CefSharp
         response_length = SizeFromStream();
     }
 
-    bool SchemeHandlerWrapper::ProcessRequest(CefRefPtr<CefRequest> request, CefRefPtr<CefSchemeHandlerCallback> callback)
+    bool SchemeHandlerWrapper::ProcessRequest(CefRefPtr<CefRequest> request, CefRefPtr<CefCallback> callback)
     {
         bool handled = false;
         Stream^ stream;
@@ -24,7 +24,7 @@ namespace CefSharp
         {
             _mime_type = toNative(mimeType);
             _stream = stream;
-            callback->HeadersAvailable();
+            callback->Continue();
 
             handled = true;
         }
@@ -32,7 +32,7 @@ namespace CefSharp
         return handled;
     }
 
-    bool SchemeHandlerWrapper::ReadResponse(void* data_out, int bytes_to_read, int& bytes_read, CefRefPtr<CefSchemeHandlerCallback> callback)
+    bool SchemeHandlerWrapper::ReadResponse(void* data_out, int bytes_to_read, int& bytes_read, CefRefPtr<CefCallback> callback)
     {
         bool has_data = false;
 
@@ -77,10 +77,10 @@ namespace CefSharp
         return -1;
     }
 
-    CefRefPtr<CefSchemeHandler> SchemeHandlerFactoryWrapper::Create(CefRefPtr<CefBrowser> browser, const CefString& scheme_name, CefRefPtr<CefRequest> request)
+    CefRefPtr<CefResourceHandler> SchemeHandlerFactoryWrapper::Create(CefRefPtr<CefBrowser> browser, const CefString& scheme_name, CefRefPtr<CefRequest> request)
     {
         ISchemeHandler^ handler = _factory->Create();
         CefRefPtr<SchemeHandlerWrapper> wrapper = new SchemeHandlerWrapper(handler);
-        return static_cast<CefRefPtr<CefSchemeHandler>>(wrapper);
+        return static_cast<CefRefPtr<CefResourceHandler>>(wrapper);
     }
 }
