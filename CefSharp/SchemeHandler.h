@@ -57,7 +57,7 @@ namespace CefSharp
         SchemeHandlerFactoryWrapper(ISchemeHandlerFactory^ factory)
             : _factory(factory) {}
 
-        virtual CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser, const CefString& scheme_name, CefRefPtr<CefRequest> request);
+        virtual CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, const CefString& scheme_name, CefRefPtr<CefRequest> request);
 
         IMPLEMENT_REFCOUNTING(SchemeHandlerFactoryWrapper);
     };

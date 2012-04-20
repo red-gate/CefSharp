@@ -205,10 +205,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\RenderClientAdapter.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Request.cpp"
 				>
 			</File>
@@ -320,10 +316,6 @@
 			</File>
 			<File
 				RelativePath=".\MCefRefPtr.h"
-				>
-			</File>
-			<File
-				RelativePath=".\RenderClientAdapter.h"
 				>
 			</File>
 			<File

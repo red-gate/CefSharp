@@ -93,7 +93,8 @@ namespace CefSharp
             bool success = false;
             if (!IsInitialized)
             {
-                success = CefInitialize(*settings->_cefSettings, nullptr);
+                CefMainArgs args;
+                success = CefInitialize(args, *settings->_cefSettings, nullptr);
                 _initialized = success;
             }
             return success;

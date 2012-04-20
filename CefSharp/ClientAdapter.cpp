@@ -16,14 +16,14 @@ namespace CefSharp
     {
         IBeforePopup^ handler = _browserControl->BeforePopupHandler;
         return handler != nullptr &&
-            handler->HandleBeforePopup(toClr(url), windowInfo.m_x, windowInfo.m_y, windowInfo.m_nWidth, windowInfo.m_nHeight);
+            handler->HandleBeforePopup(toClr(url), windowInfo.x, windowInfo.y, windowInfo.width, windowInfo.height);
     }
 
     void ClientAdapter::OnAfterCreated(CefRefPtr<CefBrowser> browser)
     {
         if(!browser->IsPopup())
         {
-            _browserHwnd = browser->GetWindowHandle();
+            _browserHwnd = browser->GetHost()->GetWindowHandle();
             _cefBrowser = browser;
 
             _browserControl->OnInitialized();
@@ -32,7 +32,7 @@ namespace CefSharp
 
     void ClientAdapter::OnBeforeClose(CefRefPtr<CefBrowser> browser)
     {
-        if (_browserHwnd == browser->GetWindowHandle())
+        if (_browserHwnd == browser->GetHost()->GetWindowHandle())
         {
             _cefBrowser = nullptr;
         }
@@ -46,6 +46,7 @@ namespace CefSharp
         }
     }
 
+    /*
     void ClientAdapter::OnContentsSizeChange(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, int width, int height)
     {
         if (frame->IsMain())
@@ -54,6 +55,7 @@ namespace CefSharp
             _browserControl->ContentsHeight = height;
         }
     }
+    */
 
     void ClientAdapter::OnTitleChange(CefRefPtr<CefBrowser> browser, const CefString& title)
     {
@@ -114,6 +116,7 @@ namespace CefSharp
         _browserControl->OnFrameLoadEnd();
     }
 
+    /*
     bool ClientAdapter::OnBeforeBrowse(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request, NavType navType, bool isRedirect)
     {
         IBeforeBrowse^ handler = _browserControl->BeforeBrowseHandler;
@@ -129,9 +132,12 @@ namespace CefSharp
             return false;
         }
     }
+    */
 
-    bool ClientAdapter::OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser, CefRefPtr<CefRequest> request, CefString& redirectUrl, CefRefPtr<CefStreamReader>& resourceStream, CefRefPtr<CefResponse> response, int loadFlags)
+    bool ClientAdapter::OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request)
     {
+        return false;
+        /*
         IBeforeResourceLoad^ handler = _browserControl->BeforeResourceLoadHandler;
         if(handler != nullptr)
         {
@@ -158,8 +164,10 @@ namespace CefSharp
         }
 
         return false;
+        */
     }
 
+    /*
     void ClientAdapter::OnResourceResponse(CefRefPtr<CefBrowser> browser, const CefString& url, CefRefPtr<CefResponse> response, CefRefPtr<CefContentFilter>& filter)
     {
         IAfterResponse^ handler = _browserControl->AfterResponseHandler;
@@ -172,7 +180,9 @@ namespace CefSharp
             }
         }
     }
+    */
 
+    /*
     void ClientAdapter::OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context)
     {
         for each(KeyValuePair<String^, Object^>^ kvp in CEF::GetBoundObjects())
@@ -192,4 +202,5 @@ namespace CefSharp
     {
         _browserControl->OnTakeFocus(next);
     }
+    */
 }

@@ -5,6 +5,7 @@ namespace CefSharp
 {
     public enum class NavigationType
     {
+        /*
         LinkClicked = NAVTYPE_LINKCLICKED,
         FormSubmitted = NAVTYPE_FORMSUBMITTED,
         BackForward = NAVTYPE_BACKFORWARD,
@@ -12,6 +13,7 @@ namespace CefSharp
         FormResubmitted = NAVTYPE_FORMRESUBMITTED,
         Other = NAVTYPE_OTHER,
         LinkDropped = NAVTYPE_LINKDROPPED,
+        */
     };
 
     public interface class IBeforeBrowse
