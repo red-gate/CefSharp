@@ -14,6 +14,7 @@ namespace CefSharp
 		{
 		private:
 			HandleRef _childHandle;
+			MCefRefPtr<CefBrowser> _browser; 
 			
 		protected:	
 			virtual	HandleRef BuildWindowCore(HandleRef hwndParent) override
@@ -27,7 +28,20 @@ namespace CefSharp
 			DevToolsControl(HandleRef ref) : HwndHost()
 			{
 				_childHandle = ref;
-			}			
+			}	
+			
+			void SetBrowser(CefRefPtr<CefBrowser> browser)
+			{
+				_browser =  browser.get();
+			}
+			void ShowDevTools()
+			{
+				_browser->ShowDevTools() ;
+			}
+			void Reload()
+			{
+				_browser->Reload() ;
+			}
 		};
 		
 		public delegate void DevToolsShowingHandler(Object^ sender, DevToolsShowingEventArgs^ args);
@@ -71,6 +85,8 @@ namespace CefSharp
 			virtual void OnLoadCompleted();
 			virtual void OnShowDevTools(DevToolsControl^ devTools);
 			virtual void OnFrameLoadEnd() override;
+			virtual void ShowDevTools() override;
+
 		};
 
 	}

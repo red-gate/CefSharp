@@ -43,7 +43,6 @@ namespace Wpf
 		HANDLE _fileMappingHandle, _backBufferHandle;
 		ActionHandler^ _paintDelegate;
 
-        bool TryGetCefBrowser(CefRefPtr<CefBrowser>& browser);
         void BrowserCore_PropertyChanged(Object^ sender, PropertyChangedEventArgs^ e);
         void Timer_Tick(Object^ sender, EventArgs^ e);
         void ToolTip_Closed(Object^ sender, RoutedEventArgs^ e);
@@ -55,6 +54,7 @@ namespace Wpf
         void OnMouseButton(MouseButtonEventArgs^ e);
 
     protected:
+        bool TryGetCefBrowser(CefRefPtr<CefBrowser>& browser);
 		virtual CefRefPtr<RenderClientAdapter> CreateClientAdapter();
         virtual void Initialize(String^ address, BrowserSettings^ settings);
         virtual Size ArrangeOverride(Size size) override;

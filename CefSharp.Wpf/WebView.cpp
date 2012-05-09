@@ -132,7 +132,7 @@ namespace Wpf
                 message == WM_IME_CHAR;
 
             browser->SendKeyEvent(type, wParam.ToInt32(), lParam.ToInt32(), sysChar, imeChar);
-            handled = true;
+          //handled = true;
         }
 
         return IntPtr::Zero;
