@@ -8,17 +8,14 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
 using CefSharp.Example;
-using CefSharp.Wpf;
-using System.IO;
-using System.Text;
 
 namespace CefSharp.Wpf.Example
 {
     public partial class MainWindow : Window, IExampleView
     {
-
-        private const string resource_url = "http://test/resource/load";
         // file
+        public event EventHandler ShowDevToolsActivated;
+        public event EventHandler CloseDevToolsActivated;
         public event EventHandler ExitActivated;
 
         // edit
@@ -51,15 +48,15 @@ namespace CefSharp.Wpf.Example
         public MainWindow()
         {
             InitializeComponent();
-            web_view.RequestResource += new RequestResourceHandler(OnRequestResource);
-            web_view.DevToolsShowing += new DevToolsShowingHandler(web_view_DevToolsShowing);
-            web_view.DevToolsShowed += new DevToolsShowedHandler(web_view_DevToolsShowed);
+
             var presenter = new ExamplePresenter(web_view, this,
                 invoke => Dispatcher.BeginInvoke(invoke));
 
             handlers = new Dictionary<object, EventHandler>
             {
                 // file
+                { showDevToolsMenuItem, ShowDevToolsActivated},
+                { closeDevToolsMenuItem, CloseDevToolsActivated},
                 { exitMenuItem, ExitActivated },
 
                 // edit
@@ -86,48 +83,6 @@ namespace CefSharp.Wpf.Example
                 { backButton, BackActivated },
                 { forwardButton, ForwardActivated },
             };
-
-           //CEF.RegisterScheme("chrome-devtools", "devtools", false, new DelegateSchemeHandlerFactory(OnTestRequest));
-        }
-
-
-        void web_view_DevToolsShowing(object sender, DevToolsShowingEventArgs args)
-        {
-            debugWindow = new Window();
-            debugWindow.Title = "Custom Debug";
-            debugWindow.Closed += debugWindow_Closed;
-            args.SetParentWindow(debugWindow);
-            debugWindow.Show();
-
-            //args.SetParentWindow(Application.Current.MainWindow);
-        }
-        private void OnShowDevToolsClick(object sender, RoutedEventArgs e)
-        {
-            if (debugWindow == null)
-            {
-                web_view.ShowDevTools();
-            }
-            else
-            {
-                debugWindow.Focus();
-            }
-        }
-
-
-        void debugWindow_Closed(object sender, EventArgs e)
-        {
-            debugWindow.Closed -= debugWindow_Closed;
-            web_view.CloseDevTools();
-            debugWindow = null;
-        }
-
-        Window debugWindow = null;
-        void web_view_DevToolsShowed(DevToolsControl devToolsControl)
-        {
-
-            debugWindow.Content = devToolsControl;
-            //Grid.SetRow(devToolsControl, 1);
-            //viewContainer.Children.Add(devToolsControl);
         }
 
         public void SetTitle(string title)
@@ -168,18 +123,6 @@ namespace CefSharp.Wpf.Example
         public void DisplayOutput(string output)
         {
             outputLabel.Content = output;
-        }
-
-
-        private void OnRequestResource(IWebBrowser browser, IRequestResponse requestResponse)
-        {
-            IRequest request = requestResponse.Request;
-            if (request.Url.StartsWith(resource_url))
-            {
-                Stream resourceStream = new MemoryStream(Encoding.UTF8.GetBytes(
-                    "<html><body><h1>Success</h1><p>This document is loaded from a System.IO.Stream</p></body></html>"));
-                requestResponse.RespondWith(resourceStream, "text/html");
-            }
         }
 
         private void control_Activated(object sender, RoutedEventArgs e)

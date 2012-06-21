@@ -41,7 +41,6 @@ namespace WinForms
             _clientAdapter = new ClientAdapter(this);
 
             CefWindowInfo window;
-            CefRefPtr<ClientAdapter> ptr = _clientAdapter.get();
             CefString url = toNative(_browserCore->Address);
 
             HWND hWnd = static_cast<HWND>(Handle.ToPointer());
@@ -49,7 +48,7 @@ namespace WinForms
             GetClientRect(hWnd, &rect);
             window.SetAsChild(hWnd, rect);
 
-            CefBrowser::CreateBrowser(window, static_cast<CefRefPtr<CefClient>>(ptr),
+            CefBrowser::CreateBrowser(window, _clientAdapter.get(),
                 url, *_settings->_browserSettings);
         }
     }
@@ -304,7 +303,7 @@ namespace WinForms
 
     Object^ WebView::EvaluateScript(String^ script, TimeSpan timeout)
     {
-	    _browserCore->CheckBrowserInitialization();
+        _browserCore->CheckBrowserInitialization();
 
         CefRefPtr<CefBrowser> browser;
         if (TryGetCefBrowser(browser))
@@ -314,7 +313,6 @@ namespace WinForms
         }
         else
         {
-            // XXX: exception
             return nullptr;
         }
     }

@@ -137,7 +137,7 @@ namespace CefSharp
         String^ memberName = toClr(name);
         Type^ type = self->GetType();
         array<System::Reflection::MemberInfo^>^ members = type->GetMember(memberName, MemberTypes::Method, 
-            /* BindingFlags::IgnoreCase |*/ BindingFlags::Instance | BindingFlags::Public);
+            BindingFlags::Instance | BindingFlags::Public);
 
         if(members->Length == 0)
         {
@@ -248,7 +248,7 @@ namespace CefSharp
     {
         CefRefPtr<BindingData> bindingData = new BindingData(obj);
         CefRefPtr<CefBase> userData = static_cast<CefRefPtr<CefBase>>(bindingData);
-        CefRefPtr<CefV8Value> wrappedObject = window->CreateObject(userData);
+        CefRefPtr<CefV8Value> wrappedObject = window->CreateObject(userData, NULL);
         CefRefPtr<CefV8Handler> handler = static_cast<CefV8Handler*>(new BindingHandler());
 
         array<MethodInfo^>^ methods = obj->GetType()->GetMethods(BindingFlags::Instance | BindingFlags::Public);

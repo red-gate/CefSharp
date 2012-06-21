@@ -132,7 +132,6 @@ namespace Wpf
                 message == WM_IME_CHAR;
 
             browser->SendKeyEvent(type, wParam.ToInt32(), lParam.ToInt32(), sysChar, imeChar);
-          //handled = true;
         }
 
         return IntPtr::Zero;
@@ -205,7 +204,8 @@ namespace Wpf
         CefRefPtr<CefBrowser> browser;
         if (TryGetCefBrowser(browser))
         {
-            browser->SetSize(PET_VIEW, (int)size.Width, (int)size.Height);
+            Point point = _matrix->Transform(Point(size.Width, size.Height));
+            browser->SetSize(PET_VIEW, (int)point.X, (int)point.Y);
         }
         else
         {
@@ -524,7 +524,6 @@ namespace Wpf
         }
         else
         {
-            // XXX: exception
             return nullptr;
         }
     }
@@ -566,25 +565,24 @@ namespace Wpf
 
 		_clientAdapter = CreateClientAdapter().get();
 
-        Visual^ parent = (Visual^)VisualTreeHelper::GetParent(this);
-        HwndSource^ source = (HwndSource^)PresentationSource::FromVisual(parent);
+        HwndSource^ source = (HwndSource^)PresentationSource::FromVisual(this);
         HWND hwnd = static_cast<HWND>(source->Handle.ToPointer());
 
         CefWindowInfo window;
         window.SetAsOffScreen(hwnd);
-        CefRefPtr<RenderClientAdapter> ptr = _clientAdapter.get();
         CefString url = toNative(_browserCore->Address);
 
-        CefBrowser::CreateBrowser(window, static_cast<CefRefPtr<CefClient>>(ptr),
+        CefBrowser::CreateBrowser(window, _clientAdapter.get(),
             url, *_settings->_browserSettings);
 
         source->AddHook(gcnew Interop::HwndSourceHook(this, &WebView::SourceHook));
 
-        _image = (Image^)GetTemplateChild("PART_Image");
         Content = _image = gcnew Image();
         _image->Stretch = Stretch::None;
         _image->HorizontalAlignment = ::HorizontalAlignment::Left;
         _image->VerticalAlignment = ::VerticalAlignment::Top;
+
+        _matrix = source->CompositionTarget->TransformToDevice;
     }
 
     void WebView::SetCursor(CefCursorHandle cursor)

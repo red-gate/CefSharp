@@ -5,14 +5,15 @@
 #include "RtzCountdownEvent.h"
 
 using namespace System::ComponentModel;
+using namespace System::Collections::Generic;
 
 namespace CefSharp
 {
-    interface class IBeforePopup;
-    interface class IBeforeBrowse;
-    interface class IBeforeResourceLoad;
-    interface class IBeforeMenu;
-    interface class IAfterResponse;
+    interface class ILifeSpanHandler;
+    interface class ILoadHandler;
+    interface class IRequestHandler;
+    interface class IMenuHandler;
+    interface class IKeyboardHandler;
 
     public ref class BrowserCore : INotifyPropertyChanged
     {
@@ -31,11 +32,13 @@ namespace CefSharp
         String^ _address;
         String^ _title;
 
-        IBeforePopup^ _beforePopupHandler;
-        IBeforeBrowse^ _beforeBrowseHandler;
-        IBeforeResourceLoad^ _beforeResourceLoadHandler;
-        IBeforeMenu^ _beforeMenuHandler;
-        IAfterResponse^ _afterResponseHandler;
+        ILifeSpanHandler^ _lifeSpanHandler;
+        ILoadHandler^ _loadHandler;
+        IRequestHandler^ _requestHandler;
+        IMenuHandler^ _menuHandler;
+        IKeyboardHandler^ _keyboardHandler;
+
+        IDictionary<String^, Object^>^ _boundObjects;
 
     public:
         virtual event PropertyChangedEventHandler^ PropertyChanged;
@@ -44,6 +47,7 @@ namespace CefSharp
         {
             _loadCompleted = gcnew RtzCountdownEvent();
             _address = address;
+            _boundObjects = gcnew Dictionary<String^, Object^>();
         }
 
         property bool IsBrowserInitialized
@@ -138,37 +142,39 @@ namespace CefSharp
             }
         }
 
-        virtual property IBeforePopup^ BeforePopupHandler
+        virtual property ILifeSpanHandler^ LifeSpanHandler
         {
-            IBeforePopup^ get() { return _beforePopupHandler; }
-            void set(IBeforePopup^ handler) { _beforePopupHandler = handler; }
+            ILifeSpanHandler^ get() { return _lifeSpanHandler; }
+            void set(ILifeSpanHandler^ handler) { _lifeSpanHandler = handler; }
         }
 
-        virtual property IBeforeBrowse^ BeforeBrowseHandler
+        virtual property ILoadHandler^ LoadHandler
         {
-            IBeforeBrowse^ get() { return _beforeBrowseHandler; }
-            void set(IBeforeBrowse^ handler) { _beforeBrowseHandler = handler; }
+            ILoadHandler^ get() { return _loadHandler; }
+            void set(ILoadHandler^ handler) { _loadHandler = handler; }
         }
 
-        virtual property IBeforeResourceLoad^ BeforeResourceLoadHandler
+        virtual property IRequestHandler^ RequestHandler
         {
-            IBeforeResourceLoad^ get() { return _beforeResourceLoadHandler; }
-            void set(IBeforeResourceLoad^ handler) { _beforeResourceLoadHandler = handler; }
+            IRequestHandler^ get() { return _requestHandler; }
+            void set(IRequestHandler^ handler) { _requestHandler = handler; }
         }
 
-        virtual property IBeforeMenu^ BeforeMenuHandler
+        virtual property IMenuHandler^ MenuHandler
         {
-            IBeforeMenu^ get() { return _beforeMenuHandler; }
-            void set(IBeforeMenu^ handler) { _beforeMenuHandler = handler; }
+            IMenuHandler^ get() { return _menuHandler; }
+            void set(IMenuHandler^ handler) { _menuHandler = handler; }
         }
 
-        virtual property IAfterResponse^ AfterResponseHandler
+        virtual property IKeyboardHandler^ KeyboardHandler
         {
-            IAfterResponse^ get() { return _afterResponseHandler; }
-            void set(IAfterResponse^ handler) { _afterResponseHandler = handler; }
+            IKeyboardHandler^ get() { return _keyboardHandler; }
+            void set(IKeyboardHandler^ handler) { _keyboardHandler = handler; }
         }
 
         void CheckBrowserInitialization();
+
+        void RegisterJsObject(String^ name, Object^ objectToBind);
 
         void SetNavState(bool isLoading, bool canGoBack, bool canGoForward);
 
@@ -176,5 +182,8 @@ namespace CefSharp
         void OnLoad();
         void OnFrameLoadStart();
         void OnFrameLoadEnd();
+
+    internal:
+        IDictionary<String^, Object^>^ GetBoundObjects();
     };
 }

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
 using System.IO;
+using System.Net;
 using System.Text;
 
 namespace CefSharp.Example
 {
-    public class ExamplePresenter : IBeforeBrowse, IBeforeResourceLoad
+    public class ExamplePresenter : IRequestHandler
     {
         public static void Init()
         {
@@ -47,12 +48,13 @@ namespace CefSharp.Example
                 CEF.ChromiumVersion, CEF.CefVersion, CEF.CefSharpVersion);
             view.DisplayOutput(version);
 
-            model.BeforeBrowseHandler = this;
-          //  model.BeforeResourceLoadHandler = this;
+            model.RequestHandler = this;
             model.PropertyChanged += model_PropertyChanged;
             model.ConsoleMessage += model_ConsoleMessage;
 
             // file
+            view.ShowDevToolsActivated += view_ShowDevToolsActivated;
+            view.CloseDevToolsActivated += view_CloseDevToolsActivated;
             view.ExitActivated += view_ExitActivated;
 
             // edit
@@ -120,6 +122,16 @@ namespace CefSharp.Example
         private void model_ConsoleMessage(object sender, ConsoleMessageEventArgs e)
         {
             gui_invoke(() => view.DisplayOutput(e.Message));
+        }
+
+        private void view_ShowDevToolsActivated(object sender, EventArgs e)
+        {
+            model.ShowDevTools();
+        }
+
+        private void view_CloseDevToolsActivated(object sender, EventArgs e)
+        {
+            model.CloseDevTools();
         }
 
         private void view_ExitActivated(object sender, EventArgs e)
@@ -240,14 +252,14 @@ namespace CefSharp.Example
             model.Forward();
         }
 
-        bool IBeforeBrowse.HandleBeforeBrowse(IWebBrowser browserControl,
-            IRequest request, NavigationType naigationvType, bool isRedirect)
+        #region IRequestHandler Members
+
+        bool IRequestHandler.OnBeforeBrowse(IWebBrowser browser, IRequest request, NavigationType naigationvType, bool isRedirect)
         {
             return false;
         }
 
-        void IBeforeResourceLoad.HandleBeforeResourceLoad(IWebBrowser browserControl,
-            IRequestResponse requestResponse)
+        bool IRequestHandler.OnBeforeResourceLoad(IWebBrowser browser, IRequestResponse requestResponse)
         {
             IRequest request = requestResponse.Request;
             if (request.Url.StartsWith(resource_url))
@@ -256,6 +268,15 @@ namespace CefSharp.Example
                     "<html><body><h1>Success</h1><p>This document is loaded from a System.IO.Stream</p></body></html>"));
                 requestResponse.RespondWith(resourceStream, "text/html");
             }
+
+            return false;
         }
+
+        void IRequestHandler.OnResourceResponse(IWebBrowser browser, string url, int status, string statusText, string mimeType, WebHeaderCollection headers)
+        {
+
+        }
+
+        #endregion
     }
 }
