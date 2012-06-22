@@ -11,15 +11,16 @@ namespace CefSharp
 		{
 			WebView::Initialize(address, settings);
 			
-			WebView::BeforeResourceLoadHandler = this;
+			WebView::RequestHandler = this;
 		}
 		CefRefPtr<RenderClientAdapter> WebViewEx::CreateClientAdapter()
 		{
 			return new RenderClientAdapterEx(this);
 		}
-		void WebViewEx::HandleBeforeResourceLoad(IWebBrowser^ browserControl, IRequestResponse^ requestResponse)
+		bool WebViewEx::OnBeforeResourceLoad(IWebBrowser^ browserControl, IRequestResponse^ requestResponse)
 		{
 			OnRequestResource(browserControl, requestResponse);
+			return false;
 		}
 		void WebViewEx::OnRequestResource(IWebBrowser^ browserControl, IRequestResponse^ requestResponse)
 		{

@@ -60,7 +60,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;_WIN32_WINNT=0x0600;WINVER=0x0600;WIN32;_WINDOWS;WIN32_LEAN_AND_MEAN;USING_CEF_SHARED;_CRT_SECURE_NO_WARNINGS;EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -86,7 +86,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_NDEBUG;_WIN32_WINNT=0x0600;WINVER=0x0600;WIN32;_WINDOWS;WIN32_LEAN_AND_MEAN;USING_CEF_SHARED;_CRT_SECURE_NO_WARNINGS;EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -137,12 +137,12 @@
     <ClInclude Include="CefSharp.h" />
     <ClInclude Include="ClientAdapter.h" />
     <ClInclude Include="ConsoleMessageEventArgs.h" />
-    <ClInclude Include="IAfterResponse.h" />
-    <ClInclude Include="IBeforeBrowse.h" />
-    <ClInclude Include="IBeforeMenu.h" />
-    <ClInclude Include="IBeforePopup.h" />
-    <ClInclude Include="IBeforeResourceLoad.h" />
+    <ClInclude Include="ikeyboardhandler.h" />
+    <ClInclude Include="ilifespanhandler.h" />
+    <ClInclude Include="iloadhandler.h" />
+    <ClInclude Include="imenuhandler.h" />
     <ClInclude Include="IRenderWebBrowser.h" />
+    <ClInclude Include="irequesthandler.h" />
     <ClInclude Include="IWebBrowser.h" />
     <ClInclude Include="MCefRefPtr.h" />
     <ClInclude Include="RenderClientAdapter.h" />

@@ -73,21 +73,6 @@
     <ClInclude Include="ConsoleMessageEventArgs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IAfterResponse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IBeforeBrowse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IBeforeMenu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IBeforePopup.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IBeforeResourceLoad.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="IRenderWebBrowser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -131,6 +116,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TypeUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="irequesthandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="imenuhandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ikeyboardhandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ilifespanhandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iloadhandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
