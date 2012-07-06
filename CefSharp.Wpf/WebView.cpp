@@ -23,8 +23,10 @@ namespace Wpf
             gcnew PropertyChangedEventHandler(this, &WebView::BrowserCore_PropertyChanged);
 
         _scriptCore = new ScriptCore();
-
 		_paintDelegate = gcnew ActionHandler(this, &WebView::SetBitmap);
+		_paintPopupDelegate = gcnew ActionHandler(this, &WebView::SetPopupBitmap);
+		_showPopupDelegate = gcnew Action<bool>(this, &WebView::ShowPopupImpl);
+		_resizePopupDelegate = gcnew ActionHandler(this, &WebView::SetPopupSizeAndPositionImpl);
 
         ToolTip = _toolTip =
             gcnew System::Windows::Controls::ToolTip();
@@ -156,6 +158,24 @@ namespace Wpf
 		bitmap->Invalidate();
     }
 
+    void WebView::SetPopupBitmap()
+    {
+		InteropBitmap^ bitmap = _popupIbitmap;
+
+		if(bitmap == nullptr) 
+		{
+			_popupImage->Source = nullptr;
+			GC::Collect(1);
+
+			int stride = _popupWidth * PixelFormats::Bgr32.BitsPerPixel / 8;
+            bitmap = (InteropBitmap^)Interop::Imaging::CreateBitmapSourceFromMemorySection(
+                (IntPtr)_popupFileMappingHandle, _popupWidth, _popupHeight, PixelFormats::Bgr32, stride, 0);
+			_popupImage->Source = bitmap;
+			_popupIbitmap = bitmap;
+		}
+
+		bitmap->Invalidate();
+    }
     void WebView::OnPreviewKey(KeyEventArgs^ e)
     {
         CefRefPtr<CefBrowser> browser;
@@ -206,6 +226,7 @@ namespace Wpf
         {
             Point point = _matrix->Transform(Point(size.Width, size.Height));
             browser->SetSize(PET_VIEW, (int)point.X, (int)point.Y);
+			HidePopup();
         }
         else
         {
@@ -234,6 +255,8 @@ namespace Wpf
         {
             browser->SendFocusEvent(false);
         }
+		
+		HidePopup();
 
         ContentControl::OnLostFocus(e);
     }
@@ -278,7 +301,7 @@ namespace Wpf
     void WebView::OnMouseUp(MouseButtonEventArgs^ e)
     {
         OnMouseButton(e);
-        Mouse::Capture(nullptr);
+		Mouse::Capture(nullptr);
     }
 
     void WebView::OnMouseLeave(MouseEventArgs^ e)
@@ -307,6 +330,7 @@ namespace Wpf
         {
             browser->GetMainFrame()->LoadURL(toNative(url));
         }
+
     }
 
     void WebView::LoadHtml(String^ html)
@@ -578,9 +602,31 @@ namespace Wpf
         source->AddHook(gcnew Interop::HwndSourceHook(this, &WebView::SourceHook));
 
         Content = _image = gcnew Image();
+		_popup = gcnew Popup();
+		
+        _popup->Child = _popupImage = gcnew Image();
+
+		_popup->MouseDown += gcnew MouseButtonEventHandler(this, &WebView::OnPopupMouseDown);
+		_popup->MouseUp += gcnew MouseButtonEventHandler(this, &WebView::OnPopupMouseUp);
+		_popup->MouseMove += gcnew MouseEventHandler(this, &WebView::OnPopupMouseMove);
+		//_popup->MouseEnter += gcnew MouseEventHandler(this, &WebView::OnPopupMouseEnter);
+		_popup->MouseLeave += gcnew MouseEventHandler(this, &WebView::OnPopupMouseLeave);
+		_popup->MouseWheel += gcnew MouseWheelEventHandler(this, &WebView::OnPopupMouseWheel);
+		Window^ currentWindow = Window::GetWindow(this);
+		currentWindow->LocationChanged += gcnew EventHandler(this, &WebView::OnWindowLocationChanged);
+		currentWindow->Deactivated += gcnew EventHandler(this, &WebView::OnWindowLocationChanged);
+
+		_popup->PlacementTarget = this;
+		_popup->Placement = PlacementMode::Relative;
+//		_popup->StaysOpen = false;
+
         _image->Stretch = Stretch::None;
         _image->HorizontalAlignment = ::HorizontalAlignment::Left;
         _image->VerticalAlignment = ::VerticalAlignment::Top;
+
+        _popupImage->Stretch = Stretch::None;
+        _popupImage->HorizontalAlignment = ::HorizontalAlignment::Left;
+        _popupImage->VerticalAlignment = ::VerticalAlignment::Top;
 
         _matrix = source->CompositionTarget->TransformToDevice;
     }
@@ -651,4 +697,192 @@ namespace Wpf
 			Dispatcher->BeginInvoke(DispatcherPriority::Render, _paintDelegate);
 		}
     }
+
+	void WebView::SetPopupBuffer(int width, int height, const void* buffer)
+    {
+        if (!_popupBackBufferHandle || _popupWidth != width || _popupHeight != height)
+        {
+			_popupIbitmap = nullptr;
+
+			if (_popupBackBufferHandle)
+            {
+                UnmapViewOfFile(_popupBackBufferHandle);
+                _popupBackBufferHandle = NULL;
+            }
+
+            if (_popupFileMappingHandle)
+            {
+                CloseHandle(_popupFileMappingHandle);
+                _popupFileMappingHandle = NULL;
+            }
+
+			int pixels = width * height;
+            int bytes = pixels * PixelFormats::Bgr32.BitsPerPixel / 8;
+
+			_popupFileMappingHandle = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, bytes, NULL);
+			if(!_popupFileMappingHandle) 
+			{
+				return;
+			}
+
+			_popupBackBufferHandle = MapViewOfFile(_popupFileMappingHandle, FILE_MAP_ALL_ACCESS, 0, 0, bytes);
+			if(!_popupBackBufferHandle) 
+			{
+				return;
+			}
+
+			_popupWidth = width;
+			_popupHeight = height;
+        }
+	
+		int stride = width * PixelFormats::Bgr32.BitsPerPixel / 8;
+		CopyMemory(_popupBackBufferHandle, (void*) buffer, height * stride);
+		
+		if(!Dispatcher->HasShutdownStarted) {
+			Dispatcher->BeginInvoke(DispatcherPriority::Render, _paintPopupDelegate);
+		}
+    }
+
+	void WebView::SetPopupSizeAndPosition(const CefRect& rect)
+	{
+		_popupX = rect.x;
+		_popupY = rect.y;
+		_popupWidth = rect.width;
+		_popupHeight = rect.height;
+		
+		if(!Dispatcher->HasShutdownStarted) {
+			Dispatcher->BeginInvoke(DispatcherPriority::Render, _resizePopupDelegate);
+		}
+	}
+	void WebView::SetPopupIsOpened(bool isOpened){
+		
+		if(!Dispatcher->HasShutdownStarted) {
+			Dispatcher->BeginInvoke(_showPopupDelegate, DispatcherPriority::Render, isOpened);
+		}
+
+	}
+
+	void WebView::GetScreenPoint(int relativeX, int relativeY, int& screenX, int& screenY){
+		Point point;
+		if(!Dispatcher->HasShutdownStarted) {
+			point =(Point) Dispatcher->Invoke(gcnew Func<int, int, Point>(this, &WebView::GetScreenPointImpl), DispatcherPriority::Render, relativeX, relativeY);
+		}
+		screenX = point.X;
+		screenY = point.Y;
+	}
+
+	Point WebView::GetScreenPointImpl(int x, int y)
+	{
+
+		Point locationFromScreen = this->PointToScreen(Point(0, 0));
+		Point targetPoints = _matrix->Transform(locationFromScreen);
+
+		return Point(targetPoints.X + x,targetPoints.Y + y);
+	}
+
+	void WebView::SetPopupSizeAndPositionImpl()
+	{
+		_popup->Width = _popupWidth;
+		_popup->Height = _popupHeight;
+
+		_popup->HorizontalOffset = _popupX;
+		_popup->VerticalOffset = _popupY;
+
+
+
+	}
+	void WebView::ShowPopupImpl(bool isOpened)
+	{
+		_popup->IsOpen = isOpened;
+	}
+
+
+	void WebView::OnPopupMouseMove(Object^ sender, MouseEventArgs^ e)
+    {
+        CefRefPtr<CefBrowser> browser;
+        if (TryGetCefBrowser(browser))
+        {
+            Point point = e->GetPosition(this);
+
+            browser->SendMouseMoveEvent((int)point.X, (int)point.Y, false);
+        }
+    }
+
+    void WebView::OnPopupMouseWheel(Object^ sender, MouseWheelEventArgs^ e)
+    {
+        CefRefPtr<CefBrowser> browser;
+        if (TryGetCefBrowser(browser))
+        {
+            Point point = e->GetPosition(this);
+	
+            browser->SendMouseWheelEvent((int)point.X, (int)point.Y, e->Delta);
+        }
+    }
+
+    void WebView::OnPopupMouseDown(Object^ sender,MouseButtonEventArgs^ e)
+    {
+        OnPopupMouseButton(e);
+        Mouse::Capture(this);
+    }
+
+    void WebView::OnPopupMouseUp(Object^ sender,MouseButtonEventArgs^ e)
+    {
+        OnPopupMouseButton(e);
+        Mouse::Capture(nullptr);
+    }
+
+    void WebView::OnPopupMouseLeave(Object^ sender,MouseEventArgs^ e)
+    {
+        CefRefPtr<CefBrowser> browser;
+        if (TryGetCefBrowser(browser))
+        {
+            browser->SendMouseMoveEvent(0, 0, true);
+        }
+    }
+	
+	void WebView::OnWindowLocationChanged(Object^ sender, EventArgs^ e)
+    { 
+		HidePopup();
+	}
+
+	void WebView::HidePopup()
+	{
+		CefRefPtr<CefBrowser> browser;
+        if (TryGetCefBrowser(browser))
+        {           
+			if(_popup != nullptr && _popup->IsOpen)
+			{
+				browser->SendMouseClickEvent(-1,-1, CefBrowser::MouseButtonType::MBT_LEFT, false, 1 );
+			}
+		}
+	}
+	
+    void WebView::OnPopupMouseButton(MouseButtonEventArgs^ e)
+    {
+        CefRefPtr<CefBrowser> browser;
+        if (!TryGetCefBrowser(browser))
+        {
+            return;
+        }
+
+        Point point = e->GetPosition(this);
+	
+        CefBrowser::MouseButtonType type;
+        if (e->ChangedButton == MouseButton::Left)
+            type = CefBrowser::MouseButtonType::MBT_LEFT;
+        else if (e->ChangedButton == MouseButton::Middle)
+            type = CefBrowser::MouseButtonType::MBT_MIDDLE;
+        else
+            type = CefBrowser::MouseButtonType::MBT_RIGHT;
+
+        bool mouseUp = e->ButtonState == MouseButtonState::Released;
+
+        browser->SendMouseClickEvent((int)point.X, (int)point.Y,
+            type, mouseUp, e->ClickCount);
+    }
+
+	
+
+ 
+
 }}
