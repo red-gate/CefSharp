@@ -22,10 +22,9 @@ namespace CefSharp
 {
 namespace Wpf
 {
-    public ref class WebView : public ContentControl, IRenderWebBrowser
+    public ref class WebView sealed : public ContentControl, IRenderWebBrowser
     {
     private:
-		
         delegate void ActionHandler();
         delegate bool MoveFocusHandler(TraversalRequest^ request);
 
@@ -48,11 +47,12 @@ namespace Wpf
         InteropBitmap^ _popupIbitmap;
 		HANDLE _fileMappingHandle, _backBufferHandle;
 		HANDLE _popupFileMappingHandle, _popupBackBufferHandle;
-		Action<bool>^  _showPopupDelegate;
 		ActionHandler^ _resizePopupDelegate;
 		ActionHandler^ _paintDelegate;
 		ActionHandler^ _paintPopupDelegate;
 
+        void Initialize(String^ address, BrowserSettings^ settings);
+        bool TryGetCefBrowser(CefRefPtr<CefBrowser>& browser);
         void BrowserCore_PropertyChanged(Object^ sender, PropertyChangedEventArgs^ e);
         void Timer_Tick(Object^ sender, EventArgs^ e);
         void ToolTip_Closed(Object^ sender, RoutedEventArgs^ e);
@@ -60,11 +60,20 @@ namespace Wpf
         void SetTooltipText(String^ text);
         IntPtr SourceHook(IntPtr hWnd, int message, IntPtr wParam, IntPtr lParam, bool% handled);
 		void SetBitmap();
+
+		void SetBuffer(int& currentWidth, int& currentHeight,
+							int width, int height, 
+							HANDLE& fileMappingHandle, 
+							HANDLE& backBufferHandle, 
+							InteropBitmap^& ibitmap,
+							ActionHandler^ paintDelegate,
+							const void* buffer);
+
 		void SetPopupBitmap();
         void OnPreviewKey(KeyEventArgs^ e);
         void OnMouseButton(MouseButtonEventArgs^ e);
 
-		void ShowPopupImpl(bool isOpened);
+		void ShowHidePopup(bool isOpened);
 		void SetPopupSizeAndPositionImpl();
 		
         void OnPopupMouseMove(Object^ sender, MouseEventArgs^ e);
@@ -73,13 +82,9 @@ namespace Wpf
         void OnPopupMouseUp(Object^ sender, MouseButtonEventArgs^ e) ;
         void OnPopupMouseLeave(Object^ sender, MouseEventArgs^ e) ;
         void OnWindowLocationChanged(Object^ sender, EventArgs^ e) ;
-        void OnPopupMouseButton(MouseButtonEventArgs^ e);
 		void HidePopup();
 		
     protected:
-        bool TryGetCefBrowser(CefRefPtr<CefBrowser>& browser);
-		virtual CefRefPtr<RenderClientAdapter> CreateClientAdapter();
-        virtual void Initialize(String^ address, BrowserSettings^ settings);
         virtual Size ArrangeOverride(Size size) override;
         virtual void OnGotFocus(RoutedEventArgs^ e) override;
         virtual void OnLostFocus(RoutedEventArgs^ e) override;
@@ -254,10 +259,8 @@ namespace Wpf
         virtual void SetBuffer(int width, int height, const void* buffer);
         virtual void SetPopupBuffer(int width, int height, const void* buffer);
 
-		virtual void SetPopupIsOpened(bool isOpened);
+		virtual void SetPopupIsOpen(bool isOpen);
 		virtual void SetPopupSizeAndPosition(const CefRect& rect);
-		virtual void GetScreenPoint(int relativeX, int relativeY, int& screenX, int& screenY);
 
-		Point WebView::GetScreenPointImpl(int x, int y);
     };
 }}
