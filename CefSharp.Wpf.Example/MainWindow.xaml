@@ -45,12 +45,20 @@
             <Slider Name="angleSlider" Minimum="-180" Maximum="180" DockPanel.Dock="Right" />
         </DockPanel>
         <Label Name="outputLabel" DockPanel.Dock="Bottom" />
-        <cs:WebView x:Name="web_view">
-            <cs:WebView.LayoutTransform>
-                <TransformGroup>
-                    <RotateTransform Angle="{Binding Value, ElementName=angleSlider}"/>
-                </TransformGroup>
-            </cs:WebView.LayoutTransform>
-        </cs:WebView>
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition />
+				<RowDefinition />
+			</Grid.RowDefinitions>
+			<cs:WebViewEx x:Name="web_view">
+				<cs:WebViewEx.LayoutTransform>
+					<TransformGroup>
+						<RotateTransform Angle="{Binding Value, ElementName=angleSlider}"/>
+					</TransformGroup>
+				</cs:WebViewEx.LayoutTransform>
+			</cs:WebViewEx>
+
+			<ContentControl Name="DevToolsContainer" Grid.Row="1" />
+		</Grid>
     </DockPanel>
 </Window>

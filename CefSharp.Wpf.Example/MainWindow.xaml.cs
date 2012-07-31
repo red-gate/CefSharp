@@ -13,8 +13,18 @@ namespace CefSharp.Wpf.Example
 {
     public partial class MainWindow : Window, IExampleView
     {
-        // file
-        public event EventHandler ShowDevToolsActivated;
+		private void OnDevToolsShowed(DevToolsControl devToolsControl)
+		{
+			DevToolsContainer.Content = devToolsControl;
+		}
+
+		private void OnDevToolsShowing(object sender, DevToolsShowingEventArgs args)
+		{
+			args.SetParentWindow(this);
+		}
+
+		// file
+		public event EventHandler ShowDevToolsActivated;
         public event EventHandler CloseDevToolsActivated;
         public event EventHandler ExitActivated;
 
@@ -83,6 +93,9 @@ namespace CefSharp.Wpf.Example
                 { backButton, BackActivated },
                 { forwardButton, ForwardActivated },
             };
+
+			web_view.DevToolsShowing += this.OnDevToolsShowing;
+			web_view.DevToolsShowed += this.OnDevToolsShowed;
         }
 
         public void SetTitle(string title)

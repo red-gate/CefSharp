@@ -39,6 +39,11 @@ namespace Wpf
         _timer->Tick +=
             gcnew EventHandler(this, &WebView::Timer_Tick);
     }
+	
+	CefRefPtr<RenderClientAdapter> WebView::CreateClientAdapter()
+    {
+		return new RenderClientAdapter(this);
+	}
 
     bool WebView::TryGetCefBrowser(CefRefPtr<CefBrowser>& browser)
     {
@@ -126,8 +131,12 @@ namespace Wpf
 
             bool imeChar =
                 message == WM_IME_CHAR;
+			CefKeyInfo info;
+			info.key = wParam.ToInt32();
+			info.sysChar = sysChar;
+			info.imeChar = imeChar;
 
-            browser->SendKeyEvent(type, wParam.ToInt32(), lParam.ToInt32(), sysChar, imeChar);
+            browser->SendKeyEvent(type, info, lParam.ToInt32());
             handled = true;
         }
 
@@ -184,7 +193,10 @@ namespace Wpf
         {
             CefBrowser::KeyType type = e->IsDown ? KT_KEYDOWN : KT_KEYUP;
             int key = KeyInterop::VirtualKeyFromKey(e->Key);
-            browser->SendKeyEvent(type, key, 0, false, false);
+			CefKeyInfo info;
+			info.key = key;
+			
+			browser->SendKeyEvent(type, info, 0);
 
             e->Handled = true;
         }
@@ -282,7 +294,7 @@ namespace Wpf
         if (TryGetCefBrowser(browser))
         {
             Point point = e->GetPosition(this);
-            browser->SendMouseWheelEvent((int)point.X, (int)point.Y, e->Delta);
+            browser->SendMouseWheelEvent((int)point.X, (int)point.Y, 0, e->Delta);
         }
     }
 
@@ -592,7 +604,7 @@ namespace Wpf
     {
         ContentControl::OnApplyTemplate();
 
-        _clientAdapter = new RenderClientAdapter(this);
+        _clientAdapter = CreateClientAdapter().get();
 
         HwndSource^ source = (HwndSource^)PresentationSource::FromVisual(this);
         HWND hwnd = static_cast<HWND>(source->Handle.ToPointer());

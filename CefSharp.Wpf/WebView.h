@@ -22,7 +22,7 @@ namespace CefSharp
 {
 namespace Wpf
 {
-    public ref class WebView sealed : public ContentControl, IRenderWebBrowser
+    public ref class WebView : public ContentControl, IRenderWebBrowser
     {
     private:
         delegate void ActionHandler();
@@ -51,7 +51,6 @@ namespace Wpf
 		ActionHandler^ _paintDelegate;
 		ActionHandler^ _paintPopupDelegate;
 
-        void Initialize(String^ address, BrowserSettings^ settings);
         bool TryGetCefBrowser(CefRefPtr<CefBrowser>& browser);
         void BrowserCore_PropertyChanged(Object^ sender, PropertyChangedEventArgs^ e);
         void Timer_Tick(Object^ sender, EventArgs^ e);
@@ -96,6 +95,8 @@ namespace Wpf
         virtual void OnMouseDown(MouseButtonEventArgs^ e) override;
         virtual void OnMouseUp(MouseButtonEventArgs^ e) override;
         virtual void OnMouseLeave(MouseEventArgs^ e) override;
+        virtual void Initialize(String^ address, BrowserSettings^ settings);
+		virtual CefRefPtr<RenderClientAdapter> CreateClientAdapter();
 
     public:
         virtual event PropertyChangedEventHandler^ PropertyChanged

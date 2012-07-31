@@ -21,3 +21,5 @@ TestResult.xml
 /Debug/
 debug.log
 /.JustCode/CefSharp2010.solution-user.settings.xml
+*.sdf
+*.log
