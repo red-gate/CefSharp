@@ -45,24 +45,25 @@ namespace CefSharp
                 CefV8ValueList args;
                 args.push_back(arg);
 
-                if (eval->ExecuteFunctionWithContext(context, global, args,
-                    result, exception, false))
+                bool success = eval->ExecuteFunctionWithContext(context, global, args, result, exception, false);
+
+                if (!success)
                 {
-                    if (exception)
+                    _exceptionMessage = "Failed to evaluate script";
+                }
+                else if (exception.get())
+                {
+                    _exceptionMessage = toClr(exception->GetMessage());
+                }
+                else
+                {
+                    try
                     {
-                        CefString message = exception->GetMessage();
-                        _exceptionMessage = toClr(message);
+                        _result = convertFromCef(result);
                     }
-                    else
+                    catch (Exception^ ex)
                     {
-                        try
-                        {
-                            _result = convertFromCef(result);
-                        }
-                        catch (Exception^ ex)
-                        {
-                            _exceptionMessage = ex->Message;
-                        }
+                        _exceptionMessage = ex->Message;
                     }
                 }
 

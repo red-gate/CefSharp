@@ -24,8 +24,8 @@ namespace Wpf
 
         _scriptCore = new ScriptCore();
 		_paintDelegate = gcnew ActionHandler(this, &WebView::SetBitmap);
-		_paintPopupDelegate = gcnew ActionHandler(this, &WebView::SetPopupBitmap);
-		_resizePopupDelegate = gcnew ActionHandler(this, &WebView::SetPopupSizeAndPositionImpl);
+        _paintPopupDelegate = gcnew ActionHandler(this, &WebView::SetPopupBitmap);
+        _resizePopupDelegate = gcnew ActionHandler(this, &WebView::SetPopupSizeAndPositionImpl);
 
         ToolTip = _toolTip =
             gcnew System::Windows::Controls::ToolTip();
@@ -47,8 +47,7 @@ namespace Wpf
 
 	void WebView::CreateBrowser()
     {
-        HwndSource^ source = (HwndSource^)PresentationSource::FromVisual(this);
-		HWND hwnd = static_cast<HWND>(source->Handle.ToPointer());
+        HWND hwnd = static_cast<HWND>(_source->Handle.ToPointer());
 
         CefWindowInfo window;
         window.SetAsOffScreen(hwnd);
@@ -136,19 +135,17 @@ namespace Wpf
             else if (message == WM_KEYUP || message == WM_SYSKEYUP)
                 type = KT_KEYUP;
 
-            bool sysChar =
+            CefKeyInfo keyInfo;
+            keyInfo.key =
+                wParam.ToInt32();
+            keyInfo.sysChar =
                 message == WM_SYSKEYDOWN ||
                 message == WM_SYSKEYUP ||
                 message == WM_SYSCHAR;
-
-            bool imeChar =
+            keyInfo.imeChar =
                 message == WM_IME_CHAR;
-			CefKeyInfo info;
-			info.key = wParam.ToInt32();
-			info.sysChar = sysChar;
-			info.imeChar = imeChar;
-
-            browser->SendKeyEvent(type, info, lParam.ToInt32());
+		
+            browser->SendKeyEvent(type, keyInfo, lParam.ToInt32());
             handled = true;
         }
 
@@ -176,22 +173,23 @@ namespace Wpf
 
     void WebView::SetPopupBitmap()
     {
-		InteropBitmap^ bitmap = _popupIbitmap;
+        InteropBitmap^ bitmap = _popupIbitmap;
 
-		if(bitmap == nullptr) 
-		{
-			_popupImage->Source = nullptr;
-			GC::Collect(1);
+        if(bitmap == nullptr) 
+        {
+            _popupImage->Source = nullptr;
+            GC::Collect(1);
 
-			int stride = _popupWidth * PixelFormats::Bgr32.BitsPerPixel / 8;
+            int stride = _popupWidth * PixelFormats::Bgr32.BitsPerPixel / 8;
             bitmap = (InteropBitmap^)Interop::Imaging::CreateBitmapSourceFromMemorySection(
                 (IntPtr)_popupFileMappingHandle, _popupWidth, _popupHeight, PixelFormats::Bgr32, stride, 0);
-			_popupImage->Source = bitmap;
-			_popupIbitmap = bitmap;
-		}
+            _popupImage->Source = bitmap;
+            _popupIbitmap = bitmap;
+        }
 
-		bitmap->Invalidate();
+        bitmap->Invalidate();
     }
+
     void WebView::OnPreviewKey(KeyEventArgs^ e)
     {
         CefRefPtr<CefBrowser> browser;
@@ -204,11 +202,10 @@ namespace Wpf
             e->Key >= Key::Left && e->Key <= Key::Down)
         {
             CefBrowser::KeyType type = e->IsDown ? KT_KEYDOWN : KT_KEYUP;
-            int key = KeyInterop::VirtualKeyFromKey(e->Key);
-			CefKeyInfo info;
-			info.key = key;
-			
-			browser->SendKeyEvent(type, info, 0);
+
+            CefKeyInfo keyInfo;
+            keyInfo.key = KeyInterop::VirtualKeyFromKey(e->Key);
+            browser->SendKeyEvent(type, keyInfo, 0);
 
             e->Handled = true;
         }
@@ -275,7 +272,7 @@ namespace Wpf
             browser->SendFocusEvent(false);
         }
 		
-		HidePopup();
+        HidePopup();
 
         ContentControl::OnLostFocus(e);
     }
@@ -320,7 +317,7 @@ namespace Wpf
     void WebView::OnMouseUp(MouseButtonEventArgs^ e)
     {
         OnMouseButton(e);
-		Mouse::Capture(nullptr);
+        Mouse::Capture(nullptr);
     }
 
     void WebView::OnMouseLeave(MouseEventArgs^ e)
@@ -349,7 +346,6 @@ namespace Wpf
         {
             browser->GetMainFrame()->LoadURL(toNative(url));
         }
-
     }
 
     void WebView::LoadHtml(String^ html)
@@ -618,31 +614,31 @@ namespace Wpf
 
         _clientAdapter = CreateClientAdapter().get();
 
-        HwndSource^ source = (HwndSource^)PresentationSource::FromVisual(this);
-        
-		CreateBrowser();
+        _source = (HwndSource^)PresentationSource::FromVisual(this);
+        _matrix = _source->CompositionTarget->TransformToDevice;
 
-        source->AddHook(gcnew Interop::HwndSourceHook(this, &WebView::SourceHook));
+        _hook = gcnew Interop::HwndSourceHook(this, &WebView::SourceHook);
+        _source->AddHook(_hook);
+
+        CreateBrowser();
 
         Content = _image = gcnew Image();
 
-		_popup = gcnew Popup();
-		
+        _popup = gcnew Popup();
         _popup->Child = _popupImage = gcnew Image();
 
-		_popup->MouseDown += gcnew MouseButtonEventHandler(this, &WebView::OnPopupMouseDown);
-		_popup->MouseUp += gcnew MouseButtonEventHandler(this, &WebView::OnPopupMouseUp);
-		_popup->MouseMove += gcnew MouseEventHandler(this, &WebView::OnPopupMouseMove);
-		_popup->MouseLeave += gcnew MouseEventHandler(this, &WebView::OnPopupMouseLeave);
-		_popup->MouseWheel += gcnew MouseWheelEventHandler(this, &WebView::OnPopupMouseWheel);
+        _popup->MouseDown += gcnew MouseButtonEventHandler(this, &WebView::OnPopupMouseDown);
+        _popup->MouseUp += gcnew MouseButtonEventHandler(this, &WebView::OnPopupMouseUp);
+        _popup->MouseMove += gcnew MouseEventHandler(this, &WebView::OnPopupMouseMove);
+        _popup->MouseLeave += gcnew MouseEventHandler(this, &WebView::OnPopupMouseLeave);
+        _popup->MouseWheel += gcnew MouseWheelEventHandler(this, &WebView::OnPopupMouseWheel);
 
-		_popup->PlacementTarget = this;
-		_popup->Placement = PlacementMode::Relative;
+        _popup->PlacementTarget = this;
+        _popup->Placement = PlacementMode::Relative;
 
-		Window^ currentWindow = Window::GetWindow(this);
-		currentWindow->LocationChanged += gcnew EventHandler(this, &WebView::OnWindowLocationChanged);
-		currentWindow->Deactivated += gcnew EventHandler(this, &WebView::OnWindowLocationChanged);
-
+        Window^ currentWindow = Window::GetWindow(this);
+        currentWindow->LocationChanged += gcnew EventHandler(this, &WebView::OnWindowLocationChanged);
+        currentWindow->Deactivated += gcnew EventHandler(this, &WebView::OnWindowLocationChanged);
 
         _image->Stretch = Stretch::None;
         _image->HorizontalAlignment = ::HorizontalAlignment::Left;
@@ -651,8 +647,6 @@ namespace Wpf
         _popupImage->Stretch = Stretch::None;
         _popupImage->HorizontalAlignment = ::HorizontalAlignment::Left;
         _popupImage->VerticalAlignment = ::VerticalAlignment::Top;
-
-        _matrix = source->CompositionTarget->TransformToDevice;
     }
 
     void WebView::SetCursor(CefCursorHandle cursor)
@@ -679,50 +673,48 @@ namespace Wpf
 
     void WebView::SetBuffer(int width, int height, const void* buffer)
     {
-		int currentWidth = _width, currentHeight = _height;
-		HANDLE fileMappingHandle = _fileMappingHandle, backBufferHandle = _backBufferHandle;
-		InteropBitmap^ ibitmap = _ibitmap;
-		
-		SetBuffer( currentWidth, currentHeight, width, height, fileMappingHandle, backBufferHandle, ibitmap, _paintDelegate, buffer);
-		
-		_ibitmap = ibitmap;
-		_fileMappingHandle = fileMappingHandle;
-		_backBufferHandle = backBufferHandle;
+        int currentWidth = _width, currentHeight = _height;
+        HANDLE fileMappingHandle = _fileMappingHandle, backBufferHandle = _backBufferHandle;
+        InteropBitmap^ ibitmap = _ibitmap;
 
-		_width = currentWidth;
-		_height = currentHeight;
+        SetBuffer(currentWidth, currentHeight, width, height, fileMappingHandle, backBufferHandle, ibitmap,
+            _paintDelegate, buffer);
+
+        _ibitmap = ibitmap;
+        _fileMappingHandle = fileMappingHandle;
+        _backBufferHandle = backBufferHandle;
+
+        _width = currentWidth;
+        _height = currentHeight;
     }
 
-	void WebView::SetPopupBuffer(int width, int height, const void* buffer)
+    void WebView::SetPopupBuffer(int width, int height, const void* buffer)
     {
-		int currentWidth = _popupWidth, currentHeight = _popupHeight;
-		HANDLE fileMappingHandle = _popupFileMappingHandle, backBufferHandle = _popupBackBufferHandle;
-		InteropBitmap^ ibitmap = _popupIbitmap;
-		
-		SetBuffer( currentWidth, currentHeight, width, height, fileMappingHandle, backBufferHandle, ibitmap, _paintPopupDelegate, buffer);
-		
-		_popupIbitmap = ibitmap;
-		_popupFileMappingHandle = fileMappingHandle;
-		_popupBackBufferHandle = backBufferHandle;
+        int currentWidth = _popupWidth, currentHeight = _popupHeight;
+        HANDLE fileMappingHandle = _popupFileMappingHandle, backBufferHandle = _popupBackBufferHandle;
+        InteropBitmap^ ibitmap = _popupIbitmap;
 
-		_popupWidth = currentWidth;
-		_popupHeight = currentHeight;
+        SetBuffer(currentWidth, currentHeight, width, height, fileMappingHandle, backBufferHandle, ibitmap,
+            _paintPopupDelegate, buffer);
+
+        _popupIbitmap = ibitmap;
+        _popupFileMappingHandle = fileMappingHandle;
+        _popupBackBufferHandle = backBufferHandle;
+
+        _popupWidth = currentWidth;
+        _popupHeight = currentHeight;
     }
 
-
-	void WebView::SetBuffer(int &currentWidth, int& currentHeight, 
-							int width, int height, 
-							HANDLE& fileMappingHandle, 
-							HANDLE& backBufferHandle, 
-							InteropBitmap^& ibitmap,
-							ActionHandler^ paintDelegate,
-							const void* buffer)
+    void WebView::SetBuffer(int &currentWidth, int& currentHeight, int width, int height,
+                            HANDLE& fileMappingHandle, HANDLE& backBufferHandle,
+                            InteropBitmap^& ibitmap, ActionHandler^ paintDelegate,
+                            const void* buffer)
     {
         if (!backBufferHandle || currentWidth != width || currentHeight != height)
         {
-			ibitmap = nullptr;
+            ibitmap = nullptr;
 
-			if (backBufferHandle)
+            if (backBufferHandle)
             {
                 UnmapViewOfFile(backBufferHandle);
                 backBufferHandle = NULL;
@@ -734,74 +726,74 @@ namespace Wpf
                 fileMappingHandle = NULL;
             }
 
-			int pixels = width * height;
+            int pixels = width * height;
             int bytes = pixels * PixelFormats::Bgr32.BitsPerPixel / 8;
 
-			fileMappingHandle = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, bytes, NULL);
-			if(!fileMappingHandle) 
-			{
-				return;
-			}
+            fileMappingHandle = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, bytes, NULL);
+            if(!fileMappingHandle) 
+            {
+                return;
+            }
 
-			backBufferHandle = MapViewOfFile(fileMappingHandle, FILE_MAP_ALL_ACCESS, 0, 0, bytes);
-			if(!backBufferHandle) 
-			{
-				return;
-			}
+            backBufferHandle = MapViewOfFile(fileMappingHandle, FILE_MAP_ALL_ACCESS, 0, 0, bytes);
+            if(!backBufferHandle) 
+            {
+                return;
+            }
 
-			currentWidth = width;
-			currentHeight = height;
+            currentWidth = width;
+            currentHeight = height;
         }
-	
-		int stride = width * PixelFormats::Bgr32.BitsPerPixel / 8;
-		CopyMemory(backBufferHandle, (void*) buffer, height * stride);
-		
-		if(!Dispatcher->HasShutdownStarted) {
-			Dispatcher->BeginInvoke(DispatcherPriority::Render, paintDelegate);
-		}
+
+        int stride = width * PixelFormats::Bgr32.BitsPerPixel / 8;
+        CopyMemory(backBufferHandle, (void*) buffer, height * stride);
+
+        if(!Dispatcher->HasShutdownStarted) {
+            Dispatcher->BeginInvoke(DispatcherPriority::Render, paintDelegate);
+        }
     }
 
-	void WebView::SetPopupSizeAndPosition(const CefRect& rect)
-	{
-		_popupX = rect.x;
-		_popupY = rect.y;
-		_popupWidth = rect.width;
-		_popupHeight = rect.height;
-		
-		if(!Dispatcher->HasShutdownStarted) {
-			Dispatcher->BeginInvoke(DispatcherPriority::Render, _resizePopupDelegate);
-		}
-	}
+    void WebView::SetPopupSizeAndPosition(const CefRect& rect)
+    {
+        _popupX = rect.x;
+        _popupY = rect.y;
+        _popupWidth = rect.width;
+        _popupHeight = rect.height;
 
-	void WebView::SetPopupIsOpen(bool isOpen){		
-		if(!Dispatcher->HasShutdownStarted) {
-			Dispatcher->BeginInvoke(gcnew Action<bool>(this, &WebView::ShowHidePopup), DispatcherPriority::Render, isOpen);
-		}
-	}
+        if(!Dispatcher->HasShutdownStarted) {
+            Dispatcher->BeginInvoke(DispatcherPriority::Render, _resizePopupDelegate);
+        }
+    }
 
-	void WebView::SetPopupSizeAndPositionImpl()
-	{
-		_popup->Width = _popupWidth;
-		_popup->Height = _popupHeight;
+    void WebView::SetPopupIsOpen(bool isOpen)
+    {		
+        if(!Dispatcher->HasShutdownStarted) {
+            Dispatcher->BeginInvoke(gcnew Action<bool>(this, &WebView::ShowHidePopup), DispatcherPriority::Render, isOpen);
+        }
+    }
 
-		_popup->HorizontalOffset = _popupX;
-		_popup->VerticalOffset = _popupY;
+    void WebView::SetPopupSizeAndPositionImpl()
+    {
+        _popup->Width = _popupWidth;
+        _popup->Height = _popupHeight;
 
-	}
-	void WebView::ShowHidePopup(bool isOpened)
-	{
-		_popup->IsOpen = isOpened;
-	}
+        _popup->HorizontalOffset = _popupX;
+        _popup->VerticalOffset = _popupY;
+    }
 
+    void WebView::ShowHidePopup(bool isOpened)
+    {
+        _popup->IsOpen = isOpened;
+    }
 
-	void WebView::OnPopupMouseMove(Object^ sender, MouseEventArgs^ e)
+    void WebView::OnPopupMouseMove(Object^ sender, MouseEventArgs^ e)
     {
         OnMouseMove(e);
     }
 
     void WebView::OnPopupMouseWheel(Object^ sender, MouseWheelEventArgs^ e)
     {
-		OnMouseWheel(e);
+        OnMouseWheel(e);
     }
 
     void WebView::OnPopupMouseDown(Object^ sender,MouseButtonEventArgs^ e)
@@ -816,26 +808,25 @@ namespace Wpf
 
     void WebView::OnPopupMouseLeave(Object^ sender,MouseEventArgs^ e)
     {
-		OnMouseLeave(e);
+        OnMouseLeave(e);
     }
-	
-	void WebView::OnWindowLocationChanged(Object^ sender, EventArgs^ e)
-    { 
-		HidePopup();
-	}
 
-	void WebView::HidePopup()
-	{
-		CefRefPtr<CefBrowser> browser;
+    void WebView::OnWindowLocationChanged(Object^ sender, EventArgs^ e)
+    { 
+        HidePopup();
+    }
+
+    void WebView::HidePopup()
+    {
+        CefRefPtr<CefBrowser> browser;
         if (TryGetCefBrowser(browser))
         {           
-			if(_popup != nullptr && _popup->IsOpen)
-			{
-				// This is the only decent way I found to hide popup properly so that clicking again on the a drop down (<select>) 
-				// opens it. 
-				browser->SendMouseClickEvent(-1,-1, CefBrowser::MouseButtonType::MBT_LEFT, false, 1 );
-			}
-		}
-	}
-	
+            if(_popup != nullptr && _popup->IsOpen)
+            {
+                // This is the only decent way I found to hide popup properly so that clicking again on the a drop down (<select>) 
+                // opens it. 
+                browser->SendMouseClickEvent(-1,-1, CefBrowser::MouseButtonType::MBT_LEFT, false, 1 );
+            }
+        }
+    }
 }}

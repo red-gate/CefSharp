@@ -116,6 +116,7 @@
     <ClCompile Include="BindingHandler.cpp" />
     <ClCompile Include="BrowserCore.cpp" />
     <ClCompile Include="ClientAdapter.cpp" />
+    <ClCompile Include="CookieVisitor.cpp" />
     <ClCompile Include="RenderClientAdapter.cpp" />
     <ClCompile Include="Request.cpp" />
     <ClCompile Include="RequestResponse.cpp" />
@@ -137,6 +138,8 @@
     <ClInclude Include="CefSharp.h" />
     <ClInclude Include="ClientAdapter.h" />
     <ClInclude Include="ConsoleMessageEventArgs.h" />
+    <ClInclude Include="cookievisitor.h" />
+    <ClInclude Include="icookievisitor.h" />
     <ClInclude Include="ikeyboardhandler.h" />
     <ClInclude Include="ilifespanhandler.h" />
     <ClInclude Include="iloadhandler.h" />
