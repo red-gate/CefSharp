@@ -1,7 +1,6 @@
 #pragma once
 
 #include "WebView.h"
-#include "DevToolsShowingEventArgs.h"
 
 using namespace System;
 using namespace System::Net;
@@ -9,73 +8,47 @@ namespace CefSharp
 {
 	namespace Wpf
 	{
-		
 		public delegate void RequestResourceHandler(IWebBrowser^ browserControl, IRequestResponse^ requestResponse);
-		
-		public ref class DevToolsControl : public HwndHost
-		{
-		private:
-			HandleRef _childHandle;
-			MCefRefPtr<CefBrowser> _browser; 
-			
-		protected:	
-			virtual	HandleRef BuildWindowCore(HandleRef hwndParent) override
-			{
-				return _childHandle;
-			}
-			virtual	void DestroyWindowCore(HandleRef hwndParent) override
-			{
-			}
-		public:
-			DevToolsControl(HandleRef ref) : HwndHost()
-			{
-				_childHandle = ref;
-			}	
-			
-			void SetBrowser(CefRefPtr<CefBrowser> browser)
-			{
-				_browser =  browser.get();
-			}
-			void ShowDevTools()
-			{
-				_browser->ShowDevTools() ;
-			}
-			void Reload()
-			{
-				_browser->Reload() ;
-			}
-		};
-		
-		public delegate void DevToolsShowingHandler(Object^ sender, DevToolsShowingEventArgs^ args);
-		public delegate void DevToolsShowedHandler(DevToolsControl^ devToolsControl);
+
+		public delegate void DevToolsShownHandler();
 
 		public ref class WebViewEx : public WebView, IRequestHandler
 		{
 		private:
+			bool _isDevTools;
+			bool adapterInitialized;
 			bool showingDevTools;
 			delegate void ActionHandler();
-			delegate IntPtr GetMainWindowHandleHandler();
-			delegate DevToolsControl^ CreateDevToolsControlHandler(IntPtr handle);
 			
-			IntPtr GetMainWindowHandle();
-			DevToolsControl^ CreateDevToolsControl(IntPtr handle);
+			WebViewEx^ devToolsView;
+			MCefRefPtr<RenderClientAdapter> _adapter;
 		
+			delegate IntPtr GetMainWindowHandleHandler();
+			IntPtr GetMainWindowHandle();
 			
 		protected:
 			virtual void Initialize(String^ address, BrowserSettings^ settings) override;
 			virtual CefRefPtr<RenderClientAdapter> CreateClientAdapter() override;
+			virtual void CreateBrowser() override;
 		public:
 			virtual event RequestResourceHandler^ RequestResource;
-			virtual event DevToolsShowedHandler^ DevToolsShowed;
-			virtual event DevToolsShowingHandler^ DevToolsShowing;
+			virtual event DevToolsShownHandler^ DevToolsShown;
 			virtual event EventHandler^ LoadCompleted;
 			
 			WebViewEx():WebView()
 			{
+				devToolsView = gcnew WebViewEx(true);
+				devToolsView->Visibility = ::Visibility::Collapsed;
 			}
-
+			
+			WebViewEx(bool isDevTools):WebView()
+			{
+				_isDevTools = isDevTools;
+			}
 			WebViewEx(String^ address, BrowserSettings^ settings) : WebView(address,settings)
 			{
+				devToolsView = gcnew WebViewEx(true);
+				devToolsView->Visibility = ::Visibility::Collapsed;
 			}
 
 			virtual bool PopupShowing(CefRefPtr<CefBrowser> parentBrowser, const CefPopupFeatures& popupFeatures, CefWindowInfo& windowInfo, const CefString& url, CefRefPtr<CefClient>& client, CefBrowserSettings& settings);
@@ -84,13 +57,17 @@ namespace CefSharp
 			
 			
 			virtual  bool OnBeforeBrowse(IWebBrowser^ browser, IRequest^ request, NavigationType naigationvType, bool isRedirect){return false;};
-       virtual bool OnBeforeResourceLoad(IWebBrowser^ browser, IRequestResponse^ requestResponse);
-	   virtual void OnResourceResponse(IWebBrowser^ browser, String^ url, int status, String^ statusText, String^ mimeType, WebHeaderCollection^ headers){};
-
+			virtual bool OnBeforeResourceLoad(IWebBrowser^ browser, IRequestResponse^ requestResponse);
+			virtual void OnResourceResponse(IWebBrowser^ browser, String^ url, int status, String^ statusText, String^ mimeType, WebHeaderCollection^ headers){};
+		    
+			virtual property WebViewEx^ DevToolsView
+			{
+				WebViewEx^ get() { return devToolsView; }
+			}
 
 			virtual void OnRequestResource(IWebBrowser^ browserControl, IRequestResponse^ requestResponse);
 			virtual void OnLoadCompleted();
-			virtual void OnShowDevTools(DevToolsControl^ devTools);
+			virtual void OnShowDevTools();
 			virtual void OnFrameLoadEnd() override;
 			virtual void ShowDevTools() override;
 

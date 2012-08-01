@@ -34,9 +34,6 @@
     <ClInclude Include="DelegateSchemeHandlerFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DevToolsShowingEventArgs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="RenderClientAdapterEx.h">
       <Filter>Header Files</Filter>
     </ClInclude>

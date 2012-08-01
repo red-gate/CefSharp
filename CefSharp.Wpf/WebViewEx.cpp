@@ -1,7 +1,6 @@
 
 #include "WebViewEx.h"
 #include "RenderClientAdapterEx.h"
-#include "DevToolsShowingEventArgs.h"
 
 namespace CefSharp
 {
@@ -13,9 +12,24 @@ namespace CefSharp
 			
 			WebView::RequestHandler = this;
 		}
+		
+		void WebViewEx::CreateBrowser()
+		{
+			if(!_isDevTools)
+			{
+				WebView::CreateBrowser();
+			}
+		}
+
 		CefRefPtr<RenderClientAdapter> WebViewEx::CreateClientAdapter()
 		{
-			return new RenderClientAdapterEx(this);
+			if(!adapterInitialized)
+			{
+				adapterInitialized = true;
+				CefRefPtr<RenderClientAdapter> adapter = new RenderClientAdapterEx(this);
+				_adapter = adapter.get();
+			}
+			return _adapter.get();
 		}
 		bool WebViewEx::OnBeforeResourceLoad(IWebBrowser^ browserControl, IRequestResponse^ requestResponse)
 		{
@@ -34,15 +48,9 @@ namespace CefSharp
 		}
 
 		IntPtr WebViewEx::GetMainWindowHandle()
-		{
-			DevToolsShowingEventArgs^ args = gcnew DevToolsShowingEventArgs();
-
-			DevToolsShowing(this, args);
-			if(args->_customWindow != nullptr)
-			{
-				return (gcnew WindowInteropHelper(args->_customWindow))->Handle;
-			}
-			return IntPtr::Zero;
+		{	
+			HwndSource^ source = (HwndSource^)PresentationSource::FromVisual(this);
+			return source->Handle;
 		}
 
 		bool WebViewEx::PopupShowing(CefRefPtr<CefBrowser> parentBrowser,
@@ -53,6 +61,8 @@ namespace CefSharp
 			CefBrowserSettings& settings)
 		{
 			
+
+
 			String^ urlString = toClr(url);
 			if(showingDevTools && urlString->StartsWith("chrome-devtools://") )
 			{
@@ -61,33 +71,33 @@ namespace CefSharp
 				if(mwHandle != IntPtr::Zero)
 				{
 					RECT rect;
-					windowInfo.SetAsChild(static_cast<HWND>(mwHandle.ToPointer()), rect);
+					windowInfo.SetAsOffScreen(static_cast<HWND>(mwHandle.ToPointer()));
+
+					CefRefPtr<RenderClientAdapter> clientAdapter = devToolsView->CreateClientAdapter();
+					client = clientAdapter;
 				}
 			}			
 			return false;
 		}
 
-
-		DevToolsControl^ WebViewEx::CreateDevToolsControl(IntPtr handle)
-		{			
-			return gcnew DevToolsControl( HandleRef(this, handle));			
-		}
-
 		void WebViewEx::PopupShown(CefRefPtr<CefBrowser> browser) 
 		{
-			if(showingDevTools)
+			if(_isDevTools)
 			{
 				showingDevTools = false;
 				HWND handle = browser->GetWindowHandle();
-				DevToolsControl^ devTools = (DevToolsControl^)Dispatcher->Invoke( gcnew CreateDevToolsControlHandler(this, &WebViewEx::CreateDevToolsControl), IntPtr(handle));
-				devTools->SetBrowser(browser);
-				Dispatcher->Invoke( gcnew DevToolsShowedHandler(this, &WebViewEx::OnShowDevTools), devTools);
+				HWND parent = GetParent(handle);
+				
+				Console::WriteLine((long)handle);
+				Console::WriteLine((long)parent);
+				Dispatcher->Invoke( gcnew DevToolsShownHandler(this, &WebViewEx::OnShowDevTools));
 			}
 		}
 
-		void WebViewEx::OnShowDevTools(DevToolsControl^ devTools)
+		void WebViewEx::OnShowDevTools()
 		{
-			DevToolsShowed(devTools);
+			this->Visibility = ::Visibility::Visible;
+			DevToolsShown();
 		}
 
 		void WebViewEx::OnLoadCompleted()

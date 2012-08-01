@@ -127,7 +127,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DelegateSchemeHandlerFactory.h" />
-    <ClInclude Include="DevToolsShowingEventArgs.h" />
     <ClInclude Include="RenderClientAdapterEx.h" />
     <ClInclude Include="WebView.h" />
     <ClInclude Include="WebViewEx.h" />

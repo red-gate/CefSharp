@@ -21,8 +21,9 @@
                 <MenuItem Header="Delete" Name="deleteMenuItem" Click="control_Activated" />
                 <MenuItem Header="Select All" Name="selectAllMenuItem" Click="control_Activated" />
             </MenuItem>
-            <MenuItem Header="Tests">
-                <MenuItem Header="Test Resource Load Handler" Name="testResourceLoadMenuItem" Click="control_Activated" />
+			<MenuItem Header="Tests">
+				<MenuItem Header="Test Reload" Name="testReload" Click="OnReload" />
+				<MenuItem Header="Test Resource Load Handler" Name="testResourceLoadMenuItem" Click="control_Activated" />
                 <MenuItem Header="Test Scheme Load Handler" Name="testSchemeLoadMenuItem" Click="control_Activated" />
                 <MenuItem Header="Test Execute JavaScript" Name="testExecuteScriptMenuItem" Click="control_Activated" />
                 <MenuItem Header="Test Evaluate JavaScript" Name="testEvaluateScriptMenuItem" Click="control_Activated" />

@@ -13,15 +13,14 @@ namespace CefSharp.Wpf.Example
 {
     public partial class MainWindow : Window, IExampleView
     {
-		private void OnDevToolsShowed(DevToolsControl devToolsControl)
+		private NewWindow window;
+
+		public void OnReload(object sender, RoutedEventArgs e)
 		{
-			DevToolsContainer.Content = devToolsControl;
+			this.window = new NewWindow();
+			window.Show();
 		}
 
-		private void OnDevToolsShowing(object sender, DevToolsShowingEventArgs args)
-		{
-			args.SetParentWindow(this);
-		}
 
 		// file
 		public event EventHandler ShowDevToolsActivated;
@@ -93,9 +92,6 @@ namespace CefSharp.Wpf.Example
                 { backButton, BackActivated },
                 { forwardButton, ForwardActivated },
             };
-
-			web_view.DevToolsShowing += this.OnDevToolsShowing;
-			web_view.DevToolsShowed += this.OnDevToolsShowed;
         }
 
         public void SetTitle(string title)
@@ -161,5 +157,6 @@ namespace CefSharp.Wpf.Example
                 handler(this, urlTextBox.Text);
             }
         }
+
     }
 }

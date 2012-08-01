@@ -19,7 +19,7 @@ namespace CefSharp
                           public CefFocusHandler,
                           public CefKeyboardHandler
     {
-    private:
+    protected:
         gcroot<IWebBrowser^> _browserControl;
         HWND _browserHwnd;
         CefRefPtr<CefBrowser> _cefBrowser;

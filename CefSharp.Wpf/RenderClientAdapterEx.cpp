@@ -12,8 +12,13 @@ namespace CefSharp
 		}
 		void RenderClientAdapterEx::OnAfterCreated(CefRefPtr<CefBrowser> browser)
 		{
-			RenderClientAdapter::OnAfterCreated(browser);
+			_browserHwnd = browser->GetWindowHandle();
+			_cefBrowser = browser;
+
+			_browserControl->OnInitialized();
 			_webView->PopupShown(browser);
 		}
+
+		
 	}
 }
