@@ -1,4 +1,5 @@
 #include "WebView.h"
+using namespace System::Threading;
 
 namespace CefSharp
 {
@@ -155,20 +156,28 @@ namespace Wpf
     void WebView::SetBitmap()
     {
 		InteropBitmap^ bitmap = _ibitmap;
-
-		if(bitmap == nullptr) 
+		
+		Monitor::Enter(this);
+		try
 		{
-			_image->Source = nullptr;
-			GC::Collect(1);
+			if(bitmap == nullptr) 
+			{
+				_image->Source = nullptr;
+				GC::Collect(1);
 
-			int stride = _width * PixelFormats::Bgr32.BitsPerPixel / 8;
-            bitmap = (InteropBitmap^)Interop::Imaging::CreateBitmapSourceFromMemorySection(
-                (IntPtr)_fileMappingHandle, _width, _height, PixelFormats::Bgr32, stride, 0);
-			_image->Source = bitmap;
-			_ibitmap = bitmap;
+				int stride = _width * PixelFormats::Bgr32.BitsPerPixel / 8;
+				bitmap = (InteropBitmap^)Interop::Imaging::CreateBitmapSourceFromMemorySection(
+					(IntPtr)_fileMappingHandle, _width, _height, PixelFormats::Bgr32, stride, 0);
+				_image->Source = bitmap;
+				_ibitmap = bitmap;
+			}
+
+			bitmap->Invalidate();
 		}
-
-		bitmap->Invalidate();
+		finally
+		{
+			Monitor::Exit(this);
+		}
     }
 
     void WebView::SetPopupBitmap()
@@ -673,19 +682,28 @@ namespace Wpf
 
     void WebView::SetBuffer(int width, int height, const void* buffer)
     {
-        int currentWidth = _width, currentHeight = _height;
-        HANDLE fileMappingHandle = _fileMappingHandle, backBufferHandle = _backBufferHandle;
-        InteropBitmap^ ibitmap = _ibitmap;
+		
+		Monitor::Enter(this);
+		try
+		{
+			int currentWidth = _width, currentHeight = _height;
+			HANDLE fileMappingHandle = _fileMappingHandle, backBufferHandle = _backBufferHandle;
+			InteropBitmap^ ibitmap = _ibitmap;
 
-        SetBuffer(currentWidth, currentHeight, width, height, fileMappingHandle, backBufferHandle, ibitmap,
-            _paintDelegate, buffer);
+			SetBuffer(currentWidth, currentHeight, width, height, fileMappingHandle, backBufferHandle, ibitmap,
+				_paintDelegate, buffer);
 
-        _ibitmap = ibitmap;
-        _fileMappingHandle = fileMappingHandle;
-        _backBufferHandle = backBufferHandle;
+			_ibitmap = ibitmap;
+			_fileMappingHandle = fileMappingHandle;
+			_backBufferHandle = backBufferHandle;
 
-        _width = currentWidth;
-        _height = currentHeight;
+			_width = currentWidth;
+			_height = currentHeight;
+		}
+		finally
+		{
+			Monitor::Exit(this);
+		}
     }
 
     void WebView::SetPopupBuffer(int width, int height, const void* buffer)
