@@ -64,7 +64,7 @@ namespace CefSharp.Wpf.Example
 
 		public void OnReload(object sender, RoutedEventArgs e)
 		{
-			//web_view.Reload(true);
+			web_view.DevToolsView.ShowDevTools();
 		}
 
 		public void OnDevTools(object sender, RoutedEventArgs e)
@@ -74,7 +74,7 @@ namespace CefSharp.Wpf.Example
 
 		private void OnDevToolsShown()
 		{
-			//this.devToolsControl = devToolsControl;
+		//	this.devToolsControl = devToolsControl;
 		}
 
 

@@ -30,6 +30,13 @@ namespace CefSharp
 			virtual void Initialize(String^ address, BrowserSettings^ settings) override;
 			virtual CefRefPtr<RenderClientAdapter> CreateClientAdapter() override;
 			virtual void CreateBrowser() override;
+
+		internal:
+			virtual property bool IsDevTools
+			{
+				bool get() { return _isDevTools; }
+			}
+
 		public:
 			virtual event RequestResourceHandler^ RequestResource;
 			virtual event DevToolsShownHandler^ DevToolsShown;
@@ -70,6 +77,7 @@ namespace CefSharp
 			virtual void OnShowDevTools();
 			virtual void OnFrameLoadEnd() override;
 			virtual void ShowDevTools() override;
+			virtual void CloseDevTools() override;
 
 		};
 

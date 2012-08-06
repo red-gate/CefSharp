@@ -54,7 +54,6 @@ namespace Wpf
         ActionHandler^ _paintPopupDelegate;
         ActionHandler^ _resizePopupDelegate;
 
-        bool TryGetCefBrowser(CefRefPtr<CefBrowser>& browser);
         void BrowserCore_PropertyChanged(Object^ sender, PropertyChangedEventArgs^ e);
         void Timer_Tick(Object^ sender, EventArgs^ e);
         void ToolTip_Closed(Object^ sender, RoutedEventArgs^ e);
@@ -84,6 +83,7 @@ namespace Wpf
         void HidePopup();
 		
     protected:
+        bool TryGetCefBrowser(CefRefPtr<CefBrowser>& browser);
         virtual Size ArrangeOverride(Size size) override;
         virtual void OnGotFocus(RoutedEventArgs^ e) override;
         virtual void OnLostFocus(RoutedEventArgs^ e) override;

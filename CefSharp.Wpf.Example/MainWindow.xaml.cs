@@ -18,6 +18,7 @@ namespace CefSharp.Wpf.Example
 		public void OnReload(object sender, RoutedEventArgs e)
 		{
 			this.window = new NewWindow();
+			window.Owner = this;
 			window.Show();
 		}
 

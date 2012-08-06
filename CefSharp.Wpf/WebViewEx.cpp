@@ -64,14 +64,17 @@ namespace CefSharp
 
 
 			String^ urlString = toClr(url);
-			if(showingDevTools && urlString->StartsWith("chrome-devtools://") )
+			if(showingDevTools && urlString->StartsWith("chrome-devtools://") && !_isDevTools)
 			{
 				settings.user_style_sheet_enabled = false;
 				IntPtr mwHandle = (IntPtr)Dispatcher->Invoke( gcnew GetMainWindowHandleHandler(this, &WebViewEx::GetMainWindowHandle));
 				if(mwHandle != IntPtr::Zero)
 				{
 					RECT rect;
-					windowInfo.SetAsOffScreen(static_cast<HWND>(mwHandle.ToPointer()));
+					CefWindowInfo window;
+       
+					window.SetAsOffScreen(static_cast<HWND>(mwHandle.ToPointer()));
+					windowInfo = window;
 
 					CefRefPtr<RenderClientAdapter> clientAdapter = devToolsView->CreateClientAdapter();
 					client = clientAdapter;
@@ -109,6 +112,13 @@ namespace CefSharp
 		{
 			showingDevTools = true;
 			WebView::ShowDevTools();
+		}
+
+		void WebViewEx::CloseDevTools()
+		{
+			devToolsView->Visibility = ::Visibility::Collapsed;
+			//devToolsView->CloseBrowser();
+			WebView::CloseDevTools();
 		}
 	}
 }
