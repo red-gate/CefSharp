@@ -12,7 +12,7 @@ namespace CefSharp
 		}
 		void RenderClientAdapterEx::OnAfterCreated(CefRefPtr<CefBrowser> browser)
 		{
-			if(_webView->IsDevTools)
+			if(_webView->IsDevTools && !_webView->IsBrowserInitialized)
 			{
 				_browserHwnd = browser->GetWindowHandle();
 				_cefBrowser = browser;
@@ -24,7 +24,6 @@ namespace CefSharp
 			{
 				ClientAdapter::OnAfterCreated(browser);
 			}
-		}
-		
+		}		
 	}
 }
