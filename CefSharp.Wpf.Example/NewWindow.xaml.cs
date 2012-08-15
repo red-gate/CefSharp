@@ -58,23 +58,32 @@ namespace CefSharp.Wpf.Example
 			this.web_view = new WebViewEx(@"C:\Users\varchev\AppData\Local\Telerik\BlackDragon\deyan.varchev_gmail.com\NewBlank\NewBlank\index.html", new BrowserSettings());
 			this.viewCOntainer.Content = web_view;
 
-			DevToolsContainer.Content = web_view.DevToolsView;
-			web_view.DevToolsView.DevToolsShown += this.OnDevToolsShown;
+			web_view.DevToolsShown += OnDevToolsShown;
 		}
 
-		public void OnReload(object sender, RoutedEventArgs e)
+		void OnDevToolsShown(DevToolsWebView view)
 		{
-			web_view.DevToolsView.ShowDevTools();
+			DevToolsContainer.Content = view;
 		}
 
-		public void OnDevTools(object sender, RoutedEventArgs e)
+		public void OnCloseDevTools(object sender, RoutedEventArgs e)
+		{
+			DevToolsContainer.Content = null;
+			web_view.CloseDevTools();
+		}
+
+		public void OnShowDevTools(object sender, RoutedEventArgs e)
 		{
 			web_view.ShowDevTools();
 		}
 
-		private void OnDevToolsShown()
+		private void OnShowDevToolsForDevTools(object sender, RoutedEventArgs e)
 		{
-		//	this.devToolsControl = devToolsControl;
+			var devTools = DevToolsContainer.Content as DevToolsWebView;
+			if (devTools != null)
+			{
+				devTools.ShowDevTools();
+			}
 		}
 
 

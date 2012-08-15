@@ -88,8 +88,9 @@
 			<RowDefinition />
 		</Grid.RowDefinitions>
 		<StackPanel>
-			<Button Content="Dev Tools" Click="OnDevTools" Height="25"></Button>
-			<Button Content="Reload" Height="25" Click="OnReload" MouseEnter="OnBtnMouseEnter"></Button>
+			<Button Content="Show Dev Tools" Click="OnShowDevTools" Height="25"></Button>
+            <Button Content="Close Dev Tools" Height="25" Click="OnCloseDevTools"></Button>
+            <Button Content="Show Dev Tools for the Dev Tools" Height="25" Click="OnShowDevToolsForDevTools"></Button>
 		</StackPanel>
 
 		<ContentControl Name="viewCOntainer" Grid.Row ="1"/>

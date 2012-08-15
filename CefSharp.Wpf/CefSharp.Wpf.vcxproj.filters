@@ -29,6 +29,12 @@
     <ClCompile Include="WebViewEx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DevToolsWebView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DevToolsRenderClientAdapter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DelegateSchemeHandlerFactory.h">
@@ -41,6 +47,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WebViewEx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DevToolsWebView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DevToolsRenderClientAdapter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

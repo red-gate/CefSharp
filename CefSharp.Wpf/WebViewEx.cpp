@@ -1,5 +1,6 @@
 
 #include "WebViewEx.h"
+#include "DevToolsWebView.h"
 #include "RenderClientAdapterEx.h"
 
 namespace CefSharp
@@ -11,25 +12,18 @@ namespace CefSharp
 			WebView::Initialize(address, settings);
 			
 			WebView::RequestHandler = this;
+			
 		}
 		
-		void WebViewEx::CreateBrowser()
-		{
-			if(!_isDevTools)
-			{
-				WebView::CreateBrowser();
-			}
-		}
-
 		CefRefPtr<RenderClientAdapter> WebViewEx::CreateClientAdapter()
 		{
 			if(!adapterInitialized)
 			{
 				adapterInitialized = true;
-				CefRefPtr<RenderClientAdapter> adapter = new RenderClientAdapterEx(this);
-				_adapter = adapter.get();
+				CefRefPtr<RenderClientAdapter> newAdapter = new RenderClientAdapterEx(this);
+				adapter = newAdapter .get();
 			}
-			return _adapter.get();
+			return adapter.get();
 		}
 		bool WebViewEx::OnBeforeResourceLoad(IWebBrowser^ browserControl, IRequestResponse^ requestResponse)
 		{
@@ -60,11 +54,8 @@ namespace CefSharp
 			CefRefPtr<CefClient>& client,
 			CefBrowserSettings& settings)
 		{
-			
-
-
 			String^ urlString = toClr(url);
-			if(showingDevTools && urlString->StartsWith("chrome-devtools://") && !_isDevTools)
+			if(showingDevTools && urlString->StartsWith("chrome-devtools://"))
 			{
 				settings.user_style_sheet_enabled = false;
 				IntPtr mwHandle = (IntPtr)Dispatcher->Invoke( gcnew GetMainWindowHandleHandler(this, &WebViewEx::GetMainWindowHandle));
@@ -75,7 +66,7 @@ namespace CefSharp
        
 					window.SetAsOffScreen(static_cast<HWND>(mwHandle.ToPointer()));
 					windowInfo = window;
-
+					DevToolsWebView^ devToolsView = (DevToolsWebView^)Dispatcher->Invoke( gcnew Func<DevToolsWebView^>(this, &WebViewEx::CreateDevToolsView)) ;
 					CefRefPtr<RenderClientAdapter> clientAdapter = devToolsView->CreateClientAdapter();
 					client = clientAdapter;
 				}
@@ -83,24 +74,14 @@ namespace CefSharp
 			return false;
 		}
 
-		void WebViewEx::PopupShown(CefRefPtr<CefBrowser> browser) 
+		DevToolsWebView^ WebViewEx::CreateDevToolsView()
 		{
-			if(_isDevTools)
-			{
-				showingDevTools = false;
-				HWND handle = browser->GetWindowHandle();
-				HWND parent = GetParent(handle);
-				
-				Console::WriteLine((long)handle);
-				Console::WriteLine((long)parent);
-				Dispatcher->Invoke( gcnew DevToolsShownHandler(this, &WebViewEx::OnShowDevTools));
-			}
+			return gcnew DevToolsWebView(this);
 		}
-
-		void WebViewEx::OnShowDevTools()
+		void WebViewEx::OnShowDevTools(DevToolsWebView^ view)
 		{
-			this->Visibility = ::Visibility::Visible;
-			DevToolsShown();
+			showingDevTools = false;
+			DevToolsShown(view);
 		}
 
 		void WebViewEx::OnLoadCompleted()
@@ -114,11 +95,5 @@ namespace CefSharp
 			WebView::ShowDevTools();
 		}
 
-		void WebViewEx::CloseDevTools()
-		{
-			devToolsView->Visibility = ::Visibility::Collapsed;
-			//devToolsView->CloseBrowser();
-			WebView::CloseDevTools();
-		}
 	}
 }

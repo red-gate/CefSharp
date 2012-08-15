@@ -120,6 +120,8 @@
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="DelegateSchemeHandlerFactory.cpp" />
+    <ClCompile Include="DevToolsRenderClientAdapter.cpp" />
+    <ClCompile Include="DevToolsWebView.cpp" />
     <ClCompile Include="RenderClientAdapterEx.cpp" />
     <ClCompile Include="..\CefSharp\StringUtil.cpp" />
     <ClCompile Include="WebView.cpp" />
@@ -127,6 +129,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DelegateSchemeHandlerFactory.h" />
+    <ClInclude Include="DevToolsRenderClientAdapter.h" />
+    <ClInclude Include="DevToolsWebView.h" />
     <ClInclude Include="RenderClientAdapterEx.h" />
     <ClInclude Include="WebView.h" />
     <ClInclude Include="WebViewEx.h" />
