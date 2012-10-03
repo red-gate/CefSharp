@@ -1,5 +1,5 @@
-###### 1.19.0
-August 1, 2012, Chromium 19.0.1084.9
+###### 0.12
+August 1, 2012, Chromium 21.0.1180.0
 
 - Updated all extension point interfaces to match their CEF names (ILoadHandler, IRequestHandler, etc).
 - Add per-browser RegisterJSObject() method.

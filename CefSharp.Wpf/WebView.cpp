@@ -1,3 +1,6 @@
+#include "stdafx.h"
+
+#include <msclr/lock.h>
 #include "WebView.h"
 using namespace System::Threading;
 
@@ -18,6 +21,7 @@ namespace Wpf
         IsTabStop = true;
 
         _settings = settings;
+        _sync = gcnew Object();
 
         _browserCore = gcnew BrowserCore(address);
         _browserCore->PropertyChanged +=
@@ -155,29 +159,22 @@ namespace Wpf
 
     void WebView::SetBitmap()
     {
-		InteropBitmap^ bitmap = _ibitmap;
-		
-		Monitor::Enter(this);
-		try
-		{
-			if(bitmap == nullptr) 
-			{
-				_image->Source = nullptr;
-				GC::Collect(1);
+        InteropBitmap^ bitmap = _ibitmap;
+        msclr::lock l(_sync);
 
-				int stride = _width * PixelFormats::Bgr32.BitsPerPixel / 8;
-				bitmap = (InteropBitmap^)Interop::Imaging::CreateBitmapSourceFromMemorySection(
-					(IntPtr)_fileMappingHandle, _width, _height, PixelFormats::Bgr32, stride, 0);
-				_image->Source = bitmap;
-				_ibitmap = bitmap;
-			}
+        if(bitmap == nullptr) 
+        {
+            _image->Source = nullptr;
+            GC::Collect(1);
 
-			bitmap->Invalidate();
-		}
-		finally
-		{
-			Monitor::Exit(this);
-		}
+            int stride = _width * PixelFormats::Bgr32.BitsPerPixel / 8;
+            bitmap = (InteropBitmap^)Interop::Imaging::CreateBitmapSourceFromMemorySection(
+                (IntPtr)_fileMappingHandle, _width, _height, PixelFormats::Bgr32, stride, 0);
+            _image->Source = bitmap;
+            _ibitmap = bitmap;
+        }
+
+        bitmap->Invalidate();
     }
 
     void WebView::SetPopupBitmap()
@@ -632,8 +629,8 @@ namespace Wpf
         CreateBrowser();
 
         Content = _image = gcnew Image();
+        RenderOptions::SetBitmapScalingMode(_image, BitmapScalingMode::NearestNeighbor);
 
-		RenderOptions::SetBitmapScalingMode(_image, BitmapScalingMode::NearestNeighbor);
         _popup = gcnew Popup();
         _popup->Child = _popupImage = gcnew Image();
 
@@ -683,13 +680,11 @@ namespace Wpf
 
     void WebView::SetBuffer(int width, int height, const void* buffer)
     {
-		
-		Monitor::Enter(this);
-		try
-		{
-			int currentWidth = _width, currentHeight = _height;
-			HANDLE fileMappingHandle = _fileMappingHandle, backBufferHandle = _backBufferHandle;
-			InteropBitmap^ ibitmap = _ibitmap;
+        msclr::lock l(_sync);
+
+        int currentWidth = _width, currentHeight = _height;
+        HANDLE fileMappingHandle = _fileMappingHandle, backBufferHandle = _backBufferHandle;
+        InteropBitmap^ ibitmap = _ibitmap;
 
 			SetBuffer(currentWidth, currentHeight, width, height, fileMappingHandle, backBufferHandle, ibitmap,
 				_paintDelegate, buffer);
@@ -698,13 +693,8 @@ namespace Wpf
 			_fileMappingHandle = fileMappingHandle;
 			_backBufferHandle = backBufferHandle;
 
-			_width = currentWidth;
-			_height = currentHeight;
-		}
-		finally
-		{
-			Monitor::Exit(this);
-		}
+        _width = currentWidth;
+        _height = currentHeight;
     }
 
     void WebView::SetPopupBuffer(int width, int height, const void* buffer)
