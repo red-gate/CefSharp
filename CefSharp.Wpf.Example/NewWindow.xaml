@@ -40,7 +40,7 @@
 									</ItemsControl.ItemsPanel>
 								</ItemsControl>
 								<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0">
-									<ItemsControl shell:WindowChrome.IsHitTestVisibleInChrome="True">
+									<ItemsControl >
 										<ItemsControl.ItemsPanel>
 											<ItemsPanelTemplate>
 												<StackPanel Orientation="Horizontal" />
@@ -69,16 +69,7 @@
 				</Setter.Value>
 			</Setter>
 
-			<Setter Property="shell:WindowChrome.WindowChrome">
-				<Setter.Value>
-					<shell:WindowChrome
-					ResizeBorderThickness="3"
-					CaptionHeight="25"
-					CornerRadius="5"
-					GlassFrameThickness="1"
-					UseAeroCaptionButtons="False" />
-				</Setter.Value>
-			</Setter>
+		
 		</Style>
 	</Window.Style>
 		<Grid>
