@@ -43,6 +43,9 @@ namespace Wpf
         _timer->Interval = TimeSpan::FromSeconds(0.5);
         _timer->Tick +=
             gcnew EventHandler(this, &WebView::Timer_Tick);
+
+		this->Loaded +=	gcnew RoutedEventHandler(this, &WebView::OnLoaded);	
+		this->Unloaded += gcnew RoutedEventHandler(this, &WebView::OnUnloaded);	
     }
 	
 	CefRefPtr<RenderClientAdapter> WebView::CreateClientAdapter()
@@ -623,14 +626,10 @@ namespace Wpf
         ContentControl::OnApplyTemplate();
 
         _clientAdapter = CreateClientAdapter().get();
-
-        _source = (HwndSource^)PresentationSource::FromVisual(this);
-        _matrix = _source->CompositionTarget->TransformToDevice;
-
-        _hook = gcnew Interop::HwndSourceHook(this, &WebView::SourceHook);
-        _source->AddHook(_hook);
-
-        CreateBrowser();
+		
+		EnsureSourceAndHook();
+        
+		CreateBrowser();
 
         Content = _image = gcnew Image();
         RenderOptions::SetBitmapScalingMode(_image, BitmapScalingMode::NearestNeighbor);
@@ -827,6 +826,34 @@ namespace Wpf
     void WebView::OnWindowLocationChanged(Object^ sender, EventArgs^ e)
     { 
         HidePopup();
+    }
+	
+    void WebView::OnLoaded(Object^ sender, RoutedEventArgs^ e)
+    {  
+		EnsureSourceAndHook();
+    }
+	
+	
+    void WebView::EnsureSourceAndHook()
+    {
+		if (_source == nullptr)
+        {
+			_source = (HwndSource^)PresentationSource::FromVisual(this);
+			_matrix = _source->CompositionTarget->TransformToDevice;
+
+			_hook = gcnew Interop::HwndSourceHook(this, &WebView::SourceHook);
+			_source->AddHook(_hook);
+		}
+    }
+
+    void WebView::OnUnloaded(Object^ sender, RoutedEventArgs^ e)
+    {  
+		if (_source && _hook)
+        {
+            _source->RemoveHook(_hook);
+			_source = nullptr;
+			_hook = nullptr;
+        }
     }
 
     void WebView::HidePopup()

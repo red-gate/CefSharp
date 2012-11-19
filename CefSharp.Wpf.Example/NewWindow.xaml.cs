@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -24,6 +25,20 @@ namespace CefSharp.Wpf.Example
 		{
 			InitializeComponent();
 			Loaded += new RoutedEventHandler(NewWindow_Loaded);
+		}
+
+		public void OnDetachDevTools(object sender, RoutedEventArgs e)
+		{
+			var view = DevToolsContainer.Content;
+			DevToolsContainer.Content = null;
+			Window newWindow = new Window();
+			newWindow.Show();
+			newWindow.Focus();
+
+
+
+			newWindow.Content = view;
+			
 		}
 
 		public void OnBtnMouseEnter(object sender, MouseEventArgs e)
@@ -63,7 +78,14 @@ namespace CefSharp.Wpf.Example
 
 		void OnDevToolsShown(DevToolsWebView view)
 		{
+			view.Loaded += view_Loaded;
+
 			DevToolsContainer.Content = view;
+		}
+
+		void view_Loaded(object sender, RoutedEventArgs e)
+		{
+			Console.WriteLine("View Loaded");
 		}
 
 		public void OnCloseDevTools(object sender, RoutedEventArgs e)
