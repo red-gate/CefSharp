@@ -94,6 +94,18 @@ namespace CefSharp
 			showingDevTools = true;
 			WebView::ShowDevTools();
 		}
+		bool WebViewEx::GetAuthCredentials(IWebBrowser^ browser, Uri^ serverAddress, bool isProxy, String^ realm, String^% username, String^% password)
+		{
+			return OnRequestAuthCredentials(browser, serverAddress, isProxy, realm, username, password);
+		}
+		bool WebViewEx::OnRequestAuthCredentials(IWebBrowser^ browserControl, Uri^ serverAddress, bool isProxy, String^ realm, String^% username, String^% password)
+		{
+			auto args = gcnew RequestAuthCredentialsEventArgs(serverAddress, isProxy, realm);
+			RequestAuthCredentials(browserControl, args);
+			username = args->Username;
+			password = args->Password;
+			return args->IsSuccessful;
+		}
 
 	}
 }

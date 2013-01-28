@@ -25,5 +25,6 @@ namespace CefSharp
         bool OnBeforeBrowse(IWebBrowser^ browser, IRequest^ request, NavigationType naigationvType, bool isRedirect);
         bool OnBeforeResourceLoad(IWebBrowser^ browser, IRequestResponse^ requestResponse);
         void OnResourceResponse(IWebBrowser^ browser, String^ url, int status, String^ statusText, String^ mimeType, WebHeaderCollection^ headers);
+		bool GetAuthCredentials(IWebBrowser^ browser, Uri^ serverAddress, bool isProxy, String^ realm, String^% username, String^% password);
     };
 }

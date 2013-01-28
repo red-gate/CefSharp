@@ -132,6 +132,7 @@
     <ClInclude Include="DevToolsRenderClientAdapter.h" />
     <ClInclude Include="DevToolsWebView.h" />
     <ClInclude Include="RenderClientAdapterEx.h" />
+    <ClInclude Include="RequestAuthCredentialsEventArgs.h" />
     <ClInclude Include="WebView.h" />
     <ClInclude Include="WebViewEx.h" />
   </ItemGroup>

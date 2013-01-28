@@ -270,4 +270,34 @@ namespace CefSharp
     {
         _browserControl->OnTakeFocus(next);
     }
+
+ 
+ 	bool ClientAdapter::GetAuthCredentials(CefRefPtr<CefBrowser> browser, bool isProxy, const CefString& host, int port, const CefString& realm, const CefString& scheme, CefString& username, CefString& password)
+ 	{
+ 		IRequestHandler^ handler = _browserControl->RequestHandler;
+ 		if (handler == nullptr)
+ 		{
+ 			return false;
+ 		}
+ 
+ 		UriBuilder^ builder = gcnew UriBuilder();
+ 		builder->Scheme = toClr(scheme);
+ 		builder->Host = toClr(host);
+ 		builder->Port = port;
+ 
+ 		String^ retUsername = nullptr;
+ 		String^ retPassword = nullptr;
+ 
+ 		bool result = handler->GetAuthCredentials(_browserControl, builder->Uri, isProxy, toClr(realm), retUsername, retPassword);
+ 
+ 		if (retUsername != nullptr && retPassword != nullptr)
+ 		{
+ 			username = toNative(retUsername);
+ 			password = toNative(retPassword);
+ 			return true;
+ 		}
+ 
+ 		return false;
+ 	}
+
 }

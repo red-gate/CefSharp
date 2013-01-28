@@ -9,6 +9,7 @@ namespace CefSharp.Example
 {
     public class ExamplePresenter : IRequestHandler, ICookieVisitor
     {
+
         public static void Init()
         {
             Settings settings = new Settings();
@@ -295,5 +296,10 @@ namespace CefSharp.Example
         }
 
         #endregion
+
+        public bool GetAuthCredentials(IWebBrowser browser, Uri serverAddress, bool isProxy, string realm, ref string username, ref string password)
+        {
+            return false;
+        }
     }
 }
