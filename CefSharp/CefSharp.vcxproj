@@ -46,7 +46,7 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">obj\$(Configuration)\</IntDir>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</IgnoreImportLibrary>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkIncremental>
-    <LinkKeyFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)\CefSharp.snk</LinkKeyFile>
+    <LinkKeyFile>$(SolutionDir)\CefSharp.snk</LinkKeyFile>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bin\$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">obj\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
@@ -56,7 +56,6 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
-    <LinkKeyFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)\CefSharp.snk</LinkKeyFile>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
