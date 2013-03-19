@@ -13,7 +13,7 @@ namespace CefSharp
 {
 namespace WinForms
 {
-    public ref class WebView sealed : public Control, IWebBrowser
+	public ref class WebView sealed : public Control, IWebBrowser
     {
     private:
         BrowserSettings^ _settings;
@@ -21,6 +21,7 @@ namespace WinForms
         MCefRefPtr<ClientAdapter> _clientAdapter;
         BrowserCore^ _browserCore;
         MCefRefPtr<ScriptCore> _scriptCore;
+		bool _isDestructed;
 
         void Initialize(String^ address, BrowserSettings^ settings);
         bool TryGetCefBrowser(CefRefPtr<CefBrowser>& browser);
@@ -59,11 +60,15 @@ namespace WinForms
 
         ~WebView()
         {
-            CefRefPtr<CefBrowser> browser;
-            if (TryGetCefBrowser(browser))
-            {
-                browser->CloseBrowser();
-            }
+			if (!_isDestructed) {
+				CefRefPtr<CefBrowser> browser;
+				if (TryGetCefBrowser(browser))
+				{
+					browser->CloseBrowser();			
+				}
+			}
+			
+			_isDestructed = true;
         }
 
         virtual property bool IsBrowserInitialized

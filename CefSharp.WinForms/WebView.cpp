@@ -19,6 +19,7 @@ namespace WinForms
         _settings = settings;
         _browserCore = gcnew BrowserCore(address);
         _scriptCore = new ScriptCore();
+		_isDestructed = false;
     }
 
     bool WebView::TryGetCefBrowser(CefRefPtr<CefBrowser>& browser)

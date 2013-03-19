@@ -40,6 +40,7 @@ namespace CefSharp
             if (_ptr)
             {
                 _ptr->Release();
+				_ptr = NULL;
             }
         }
 
@@ -48,6 +49,7 @@ namespace CefSharp
             if (_ptr)
             {
                 _ptr->Release();
+				_ptr = NULL;
             }
         }
 
