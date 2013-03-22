@@ -2,6 +2,14 @@
 
 namespace CefSharp.Example
 {
+    class NestedBoundObject
+    {
+        public string GetRandomString()
+        {
+            return "Some String";
+        }
+    }
+
     class BoundObject
     {
         public string Repeat(string str, int n)
@@ -16,6 +24,11 @@ namespace CefSharp.Example
 
         public void EchoVoid()
         {
+        }
+
+        public NestedBoundObject BoundObjectProp
+        {
+            get { return new NestedBoundObject(); }
         }
 
         public Boolean EchoBoolean(Boolean arg0)

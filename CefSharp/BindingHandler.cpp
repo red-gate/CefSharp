@@ -124,7 +124,35 @@ namespace CefSharp
         return Convert::ChangeType(value, conversionType);
     }
 
-    bool BindingHandler::Execute(const CefString& name, CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retval, CefString& exception)
+	CefRefPtr<CefV8Value> CreateObject(Object^ obj, CefRefPtr<CefV8Value> window)
+	{
+		// wrap the managed object in an unmanaged wrapper
+        CefRefPtr<BindingData> bindingData = new BindingData(obj);
+        CefRefPtr<CefBase> userData = static_cast<CefRefPtr<CefBase>>(bindingData);
+
+		// create the javascript object and associate the wrapped object
+        CefRefPtr<CefV8Value> wrappedObject = window->CreateObject(userData, NULL);
+
+        // build a list of methods on the bound object
+        array<MethodInfo^>^ methods = obj->GetType()->GetMethods(BindingFlags::Instance | BindingFlags::Public);
+        IDictionary<String^, Object^>^ methodNames = gcnew Dictionary<String^, Object^>();
+        for each(MethodInfo^ method in methods) 
+        {
+            methodNames->Add(method->Name, nullptr);
+        }
+
+        // create a corresponding javascript method for each c# method
+        CefRefPtr<CefV8Handler> handler = static_cast<CefV8Handler*>(new BindingHandler());
+        for each(String^ methodName in methodNames->Keys)
+        {
+            CefString nameStr = toNative(methodName);
+            wrappedObject->SetValue(nameStr, CefV8Value::CreateFunction(nameStr, handler), V8_PROPERTY_ATTRIBUTE_NONE);
+        }
+
+		return wrappedObject;
+	}
+
+	bool BindingHandler::Execute(const CefString& name, CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retval, CefString& exception)
     {
         CefRefPtr<BindingData> bindingData = static_cast<BindingData*>(object->GetUserData().get());
         Object^ self = bindingData->Get();
@@ -226,6 +254,10 @@ namespace CefSharp
             {
                 Object^ result = bestMethod->Invoke(self, bestMethodArguments);
                 retval = convertToCef(result, bestMethod->ReturnType);
+
+				if (retval == nullptr) {
+					retval = CreateObject(result, object);
+				}
                 return true;
             }
             catch(System::Reflection::TargetInvocationException^ err)
@@ -244,30 +276,10 @@ namespace CefSharp
         return true;
     }
 
-    void BindingHandler::Bind(String^ name, Object^ obj, CefRefPtr<CefV8Value> window)
+	void BindingHandler::Bind(String^ name, Object^ obj, CefRefPtr<CefV8Value> window)
     {
-        // wrap the managed object in an unmanaged wrapper
-        CefRefPtr<BindingData> bindingData = new BindingData(obj);
-        CefRefPtr<CefBase> userData = static_cast<CefRefPtr<CefBase>>(bindingData);
-
-        // create the javascript object and associate the wrapped object
-        CefRefPtr<CefV8Value> wrappedObject = window->CreateObject(userData, NULL);
-
-        // build a list of methods on the bound object
-        array<MethodInfo^>^ methods = obj->GetType()->GetMethods(BindingFlags::Instance | BindingFlags::Public);
-        IDictionary<String^, Object^>^ methodNames = gcnew Dictionary<String^, Object^>();
-        for each(MethodInfo^ method in methods) 
-        {
-            methodNames->Add(method->Name, nullptr);
-        }
-
-        // create a corresponding javascript method for each c# method
-        CefRefPtr<CefV8Handler> handler = static_cast<CefV8Handler*>(new BindingHandler());
-        for each(String^ methodName in methodNames->Keys)
-        {
-            CefString nameStr = toNative(methodName);
-            wrappedObject->SetValue(nameStr, CefV8Value::CreateFunction(nameStr, handler), V8_PROPERTY_ATTRIBUTE_NONE);
-        }
+		// create the javascript object and associate the wrapped object
+        CefRefPtr<CefV8Value> wrappedObject = CreateObject(obj, window);
 
         window->SetValue(toNative(name), wrappedObject, V8_PROPERTY_ATTRIBUTE_NONE);
     }
