@@ -64,6 +64,8 @@ namespace WinForms
 			Trace::WriteLine(String::Format("Disposing of WebView: _isDestructed: [{0}]", _isDestructed));
 
 			if (!_isDestructed) {
+				_isDestructed = true;
+
 				CefRefPtr<CefBrowser> browser;
 				if (TryGetCefBrowser(browser))
 				{
@@ -71,8 +73,6 @@ namespace WinForms
 				}
 			}
 			
-			_isDestructed = true;
-
 			Trace::WriteLine("WebView has been disposed");
         }
 
