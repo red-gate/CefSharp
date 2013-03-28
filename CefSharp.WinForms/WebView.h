@@ -8,6 +8,7 @@ using namespace System;
 using namespace System::Collections::Generic;
 using namespace System::ComponentModel;
 using namespace System::Windows::Forms;
+using namespace System::Diagnostics;
 
 namespace CefSharp
 {
@@ -60,6 +61,8 @@ namespace WinForms
 
         ~WebView()
         {
+			Trace::WriteLine(String::Format("Disposing of WebView: _isDestructed: [{0}]", _isDestructed));
+
 			if (!_isDestructed) {
 				CefRefPtr<CefBrowser> browser;
 				if (TryGetCefBrowser(browser))
@@ -69,6 +72,8 @@ namespace WinForms
 			}
 			
 			_isDestructed = true;
+
+			Trace::WriteLine("WebView has been disposed");
         }
 
         virtual property bool IsBrowserInitialized
