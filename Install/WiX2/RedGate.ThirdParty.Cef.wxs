@@ -1,0 +1,153 @@
+<Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
+
+	<!-- Building block fragments because apparently everything has to be contained in a fragment -->
+	<Fragment Id="CefCore">
+		<DirectoryRef Id="INSTALLDIR">
+			<Directory Id="LOCALES" Name="locales" LongName="locales">
+			</Directory>
+			<Component Id="CefCore" Guid="{726C42EE-249E-4B7C-B9F7-669DBFE18B9D}">
+				<File Id="CefSharp" Name="CefSharp.dll" LongName="CefSharp.dll" DiskId="1" src="CefSharp.dll" /> 
+				<File Id="CefIcudt" Name="icudt.dll" LongName="icudt.dll" DiskId="1" src="icudt.dll" /> 
+				<File Id="libcef" Name="libcef.dll" LongName="libcef.dll" DiskId="1" src="libcef.dll" /> 
+			</Component>
+		</DirectoryRef>
+	</Fragment>
+
+	<Fragment Id="CefDevTools">
+		<DirectoryRef Id="INSTALLDIR">
+			<Component Id="CefDevTools" Guid="{8AC525E9-904D-43C6-84F3-A8E656C7B112}">
+				<File Id="chromepak" Name="chrome.pak" LongName="chrome.pak" DiskId="1" src="chrome.pak" />
+			</Component>
+		</DirectoryRef>
+	</Fragment>
+
+	<Fragment Id="CefNative">
+		<DirectoryRef Id="INSTALLDIR">
+			<!-- I believe this allows certain graphics capabilities, but there may be issues during app startup depending on whether the user has directx installed -->
+			<Component Id="CefNative" Guid="{25AF0917-6E3B-467C-AEC8-8ED473ABA6E5}">
+				<File Id="libEGL" Name="libEGL.dll" LongName="libEGL.dll" DiskId="1" src="libEGL.dll" />
+				<File Id="CefAvCodec" Name="avcdc-54.dll" LongName="avcodec-54.dll" DiskId="1" src="avcodec-54.dll" />
+				<File Id="CefAvFrmt" Name="avfmt-54.dll" LongName="avformat-54.dll" DiskId="1" src="avformat-54.dll" />
+				<File Id="CefAvUtil" Name="avutil51.dll" LongName="avutil-51.dll" DiskId="1" src="avutil-51.dll" />
+			</Component>
+		</DirectoryRef>		
+	</Fragment>
+
+	<Fragment Id="CefWpf">
+		<DirectoryRef Id="INSTALLDIR">
+			<Component Id="CefWpf" Guid="{C84C7312-5D1B-467D-83C4-D76BD99ABBE7}">
+				<File Id="CefSharp.Wpf" Name="CefWpf.dll" LongName="CefSharp.Wpf.dll" DiskId="1" src="CefSharp.Wpf.dll" /> 
+			</Component>
+		</DirectoryRef>
+	</Fragment>
+
+	<Fragment Id="CefCore">
+		<DirectoryRef Id="INSTALLDIR">
+			<Component Id="CefWinForms" Guid="{95263928-C13C-4353-A734-BD0176F99FB7}">
+				<File Id="CefSharp.WinForms" Name="CefFrms.dll" LongName="CefSharp.WinForms.dll" DiskId="1" src="CefSharp.WinForms.dll" /> 
+			</Component>
+		</DirectoryRef>
+	</Fragment>
+
+	<Fragment Id="CefLocales">
+		<DirectoryRef Id="LOCALES">
+			<Component Id="CefLocales" Guid="{DE6C1418-964B-470A-BB82-E8037813A311}">
+				<File Id="ampak" Name="am.pak" LongName="am.pak" DiskId="1" src="locales\am.pak" />
+				<File Id="arpak" Name="ar.pak" LongName="ar.pak" DiskId="1" src="locales\ar.pak" />
+				<File Id="bgpak" Name="bg.pak" LongName="bg.pak" DiskId="1" src="locales\bg.pak" />
+				<File Id="bnpak" Name="bn.pak" LongName="bn.pak" DiskId="1" src="locales\bn.pak" />
+				<File Id="capak" Name="ca.pak" LongName="ca.pak" DiskId="1" src="locales\ca.pak" />
+				<File Id="cspak" Name="cs.pak" LongName="cs.pak" DiskId="1" src="locales\cs.pak" />
+				<File Id="dapak" Name="da.pak" LongName="da.pak" DiskId="1" src="locales\da.pak" />
+				<File Id="depak" Name="de.pak" LongName="de.pak" DiskId="1" src="locales\de.pak" />
+				<File Id="elpak" Name="el.pak" LongName="el.pak" DiskId="1" src="locales\el.pak" />
+				<File Id="enGBpak" Name="en-GB.pak" LongName="en-GB.pak" DiskId="1" src="locales\en-GB.pak" />
+				<File Id="enUSpak" Name="en-US.pak" LongName="en-US.pak" DiskId="1" src="locales\en-US.pak" />
+				<File Id="es419pak" Name="es-419.pak" LongName="es-419.pak" DiskId="1" src="locales\es-419.pak" />
+				<File Id="espak" Name="es.pak" LongName="es.pak" DiskId="1" src="locales\es.pak" />
+				<File Id="etpak" Name="et.pak" LongName="et.pak" DiskId="1" src="locales\et.pak" />
+				<File Id="fapak" Name="fa.pak" LongName="fa.pak" DiskId="1" src="locales\fa.pak" />
+				<File Id="fipak" Name="fi.pak" LongName="fi.pak" DiskId="1" src="locales\fi.pak" />
+				<File Id="filpak" Name="fil.pak" LongName="fil.pak" DiskId="1" src="locales\fil.pak" />
+				<File Id="frpak" Name="fr.pak" LongName="fr.pak" DiskId="1" src="locales\fr.pak" />
+				<File Id="gupak" Name="gu.pak" LongName="gu.pak" DiskId="1" src="locales\gu.pak" />
+				<File Id="hepak" Name="he.pak" LongName="he.pak" DiskId="1" src="locales\he.pak" />
+				<File Id="hipak" Name="hi.pak" LongName="hi.pak" DiskId="1" src="locales\hi.pak" />
+				<File Id="hrpak" Name="hr.pak" LongName="hr.pak" DiskId="1" src="locales\hr.pak" />
+				<File Id="hupak" Name="hu.pak" LongName="hu.pak" DiskId="1" src="locales\hu.pak" />
+				<File Id="idpak" Name="id.pak" LongName="id.pak" DiskId="1" src="locales\id.pak" />
+				<File Id="itpak" Name="it.pak" LongName="it.pak" DiskId="1" src="locales\it.pak" />
+				<File Id="japak" Name="ja.pak" LongName="ja.pak" DiskId="1" src="locales\ja.pak" />
+				<File Id="knpak" Name="kn.pak" LongName="kn.pak" DiskId="1" src="locales\kn.pak" />
+				<File Id="kopak" Name="ko.pak" LongName="ko.pak" DiskId="1" src="locales\ko.pak" />
+				<File Id="ltpak" Name="lt.pak" LongName="lt.pak" DiskId="1" src="locales\lt.pak" />
+				<File Id="lvpak" Name="lv.pak" LongName="lv.pak" DiskId="1" src="locales\lv.pak" />
+				<File Id="mlpak" Name="ml.pak" LongName="ml.pak" DiskId="1" src="locales\ml.pak" />
+				<File Id="mrpak" Name="mr.pak" LongName="mr.pak" DiskId="1" src="locales\mr.pak" />
+				<File Id="mspak" Name="ms.pak" LongName="ms.pak" DiskId="1" src="locales\ms.pak" />
+				<File Id="nbpak" Name="nb.pak" LongName="nb.pak" DiskId="1" src="locales\nb.pak" />
+				<File Id="nlpak" Name="nl.pak" LongName="nl.pak" DiskId="1" src="locales\nl.pak" />
+				<File Id="plpak" Name="pl.pak" LongName="pl.pak" DiskId="1" src="locales\pl.pak" />
+				<File Id="ptBRpak" Name="pt-BR.pak" LongName="pt-BR.pak" DiskId="1" src="locales\pt-BR.pak" />
+				<File Id="ptPTpak" Name="pt-PT.pak" LongName="pt-PT.pak" DiskId="1" src="locales\pt-PT.pak" />
+				<File Id="ropak" Name="ro.pak" LongName="ro.pak" DiskId="1" src="locales\ro.pak" />
+				<File Id="rupak" Name="ru.pak" LongName="ru.pak" DiskId="1" src="locales\ru.pak" />
+				<File Id="skpak" Name="sk.pak" LongName="sk.pak" DiskId="1" src="locales\sk.pak" />
+				<File Id="slpak" Name="sl.pak" LongName="sl.pak" DiskId="1" src="locales\sl.pak" />
+				<File Id="srpak" Name="sr.pak" LongName="sr.pak" DiskId="1" src="locales\sr.pak" />
+				<File Id="svpak" Name="sv.pak" LongName="sv.pak" DiskId="1" src="locales\sv.pak" />
+				<File Id="swpak" Name="sw.pak" LongName="sw.pak" DiskId="1" src="locales\sw.pak" />
+				<File Id="tapak" Name="ta.pak" LongName="ta.pak" DiskId="1" src="locales\ta.pak" />
+				<File Id="tepak" Name="te.pak" LongName="te.pak" DiskId="1" src="locales\te.pak" />
+				<File Id="thpak" Name="th.pak" LongName="th.pak" DiskId="1" src="locales\th.pak" />
+				<File Id="trpak" Name="tr.pak" LongName="tr.pak" DiskId="1" src="locales\tr.pak" />
+				<File Id="ukpak" Name="uk.pak" LongName="uk.pak" DiskId="1" src="locales\uk.pak" />
+				<File Id="vipak" Name="vi.pak" LongName="vi.pak" DiskId="1" src="locales\vi.pak" />
+				<File Id="zhCNpak" Name="zh-CN.pak" LongName="zh-CN.pak" DiskId="1" src="locales\zh-CN.pak" />
+				<File Id="zhTWpak" Name="zh-TW.pak" LongName="zh-TW.pak" DiskId="1" src="locales\zh-TW.pak" />
+			</Component>
+		</DirectoryRef>
+	</Fragment>
+
+	<!-- Reference one of the following fragments -->
+	<Fragment Id="CefWithWpfAndDevTools">
+		<FeatureRef Id="Product">
+			<ComponentRef Id="CefCore"/>
+			<ComponentRef Id="CefLocales"/>
+			<ComponentRef Id="CefDevTools"/>
+			<ComponentRef Id="CefWpf"/>
+		</FeatureRef>
+	</Fragment>
+
+	<Fragment Id="CefWithWinFormsAndDevTools">
+		<FeatureRef Id="Product">
+			<ComponentRef Id="CefCore"/>
+			<ComponentRef Id="CefLocales"/>
+			<ComponentRef Id="CefDevTools"/>
+			<ComponentRef Id="CefWinForms"/>
+		</FeatureRef>
+	</Fragment>
+
+	<Fragment Id="CefWithWpf">
+		<FeatureRef Id="Product">
+			<ComponentRef Id="CefCore"/>
+			<ComponentRef Id="CefLocales"/>
+			<ComponentRef Id="CefWpf"/>
+		</FeatureRef>
+	</Fragment>
+
+	<Fragment Id="CefWithWinForms">
+		<FeatureRef Id="Product">
+			<ComponentRef Id="CefCore"/>
+			<ComponentRef Id="CefLocales"/>
+			<ComponentRef Id="CefWinForms"/>
+		</FeatureRef>
+	</Fragment>
+
+	<!-- Optionally also reference this fragment to get certain graphics capabilities, but there may be issues during app startup depending on whether the user has directx installed -->
+	<Fragment Id="CefNativeGraphicsDlls">
+		<FeatureRef Id="Product">
+			<ComponentRef Id="CefNative" />
+		</FeatureRef>
+	</Fragment>
+</Wix>
