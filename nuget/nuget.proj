@@ -20,15 +20,15 @@
     <!-- expanding it later will lose .RecursiveDir metadata due to a bug in CreateItem -->
     <!--<CefDevTools Include="locales\%2A%2A" /--><!-- %2A == '*' -->
     <CefMediaNativeLib Include="avcodec-54.dll;avformat-54.dll;avutil-51.dll;libEGL.dll;libGLESv2.dll" />
-    <CefAllNativeLib Include="@(CefCoreNativeLib);@(CefMediaNativeLib);" />
+    <CefAllNativeLib Condition="$(WithCefMediaNativeLibs)!=''" Include="@(CefCoreNativeLib);@(CefMediaNativeLib);" />
+    <CefAllNativeLib Condition="$(WithCefMediaNativeLibs)==''" Include="@(CefCoreNativeLib)" />
 	<CefWixFragments Include="..\Install\**\*.wxs;..\Install\**\*.wxi" />
   </ItemGroup>
   
   <ItemGroup>
     <BinAssemblies Include="@(CefCoreAssembly -> '$(SrcDir)%(Identity)')" />
 	 <!-- Remove native libs by default, they cause crashes when directx isn't installed -->
-     <_BinRest Condition="$(WithCefNativeLibs)!=''" Include="@(CefAllNativeLib);@(CefDevTools)" />
-     <_BinRest Condition="$(WithCefNativeLibs)==''" Include="@(CefDevTools)" />
+     <_BinRest Include="@(CefAllNativeLib);@(CefDevTools)" />
     <BinRest Include="@(_BinRest -> '$(SrcDir)%(Identity)')" />
     <BinLocales Include="$(SrcDir)locales\**" />
     <Tools Include="tools\**" />
