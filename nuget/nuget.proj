@@ -21,7 +21,7 @@
     <!--<CefDevTools Include="locales\%2A%2A" /--><!-- %2A == '*' -->
     <CefMediaNativeLib Include="avcodec-54.dll;avformat-54.dll;avutil-51.dll;libEGL.dll;libGLESv2.dll" />
     <CefAllNativeLib Include="@(CefCoreNativeLib);@(CefMediaNativeLib);" />
-	<CefWixFragment Include="Install\WiX2\RedGate.ThirdParty.Cef.wxs;Install\WiX3.5\RedGate.ThirdParty.Cef.wxs" />
+	<CefWixFragments Include="Install\**\*.wxs;Install\**\*.wxi" />
   </ItemGroup>
   
   <ItemGroup>
@@ -43,6 +43,7 @@
     <Copy SourceFiles="@(BinLocales)"
           DestinationFiles="$(OutDir)\tools\bin\x86\locales\%(RecursiveDir)%(Filename)%(Extension)" />
     <Copy SourceFiles="@(Tools)" DestinationFolder="$(OutDir)\tools\%(RecursiveDir)" />
+    <Copy SourceFiles="@(CefWixFragments)" DestinationFolder="$(OutDir)\%(RecursiveDir)%(Filename)%(Extension)" />
     <Exec Command="nuget pack $(NuSpec) -BasePath $(OutDir) -OutputDirectory $(PackageDir)" />
   </Target>
 
