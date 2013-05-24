@@ -43,7 +43,7 @@
     <Copy SourceFiles="@(BinLocales)"
           DestinationFiles="$(OutDir)\tools\bin\x86\locales\%(RecursiveDir)%(Filename)%(Extension)" />
     <Copy SourceFiles="@(Tools)" DestinationFolder="$(OutDir)\tools\%(RecursiveDir)" />
-    <Copy SourceFiles="@(CefWixFragments)" DestinationFolder="$(OutDir)\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Copy SourceFiles="@(CefWixFragments)" DestinationFolder="$(OutDir)\%(RecursiveDir)" />
     <Exec Command="nuget pack $(NuSpec) -BasePath $(OutDir) -OutputDirectory $(PackageDir)" />
   </Target>
 
