@@ -110,35 +110,18 @@
 	</Fragment>
 
 	<!-- Reference one of the following fragments -->
-	<Fragment Id="CefWithWpfAndDevTools">
-		<FeatureRef Id="Product">
-			<ComponentRef Id="CefCore"/>
-			<ComponentRef Id="CefLocales"/>
-			<ComponentRef Id="CefDevTools"/>
-			<ComponentRef Id="CefWpf"/>
-		</FeatureRef>
-	</Fragment>
-
-	<Fragment Id="CefWithWinFormsAndDevTools">
-		<FeatureRef Id="Product">
-			<ComponentRef Id="CefCore"/>
-			<ComponentRef Id="CefLocales"/>
-			<ComponentRef Id="CefDevTools"/>
-			<ComponentRef Id="CefWinForms"/>
-		</FeatureRef>
-	</Fragment>
-
 	<Fragment Id="CefWithWpf">
 		<FeatureRef Id="Product">
 			<ComponentRef Id="CefCore"/>
+			<ComponentRef Id="CefDevTools"/>
 			<ComponentRef Id="CefLocales"/>
 			<ComponentRef Id="CefWpf"/>
 		</FeatureRef>
 	</Fragment>
-
 	<Fragment Id="CefWithWinForms">
 		<FeatureRef Id="Product">
 			<ComponentRef Id="CefCore"/>
+			<ComponentRef Id="CefDevTools"/>
 			<ComponentRef Id="CefLocales"/>
 			<ComponentRef Id="CefWinForms"/>
 		</FeatureRef>
