@@ -3,13 +3,21 @@
 	<!-- Building block fragments because apparently everything has to be contained in a fragment -->
 	<Fragment Id="CefCore">
 		<DirectoryRef Id="INSTALLDIR">
-			<Component Id="CefCore" Guid="{726C42EE-249E-4B7C-B9F7-669DBFE18B9D}">
-				<File Id="CefSharp" Name="CefSharp.dll" DiskId="1" src="CefSharp.dll" /> 
+			<Component Id="CefUnmanagedCore" Guid="{726C42EE-249E-4B7C-B9F7-669DBFE18B9D}">
 				<File Id="CefIcudt" Name="icudt.dll" DiskId="1" src="icudt.dll" /> 
 				<File Id="libcef" Name="libcef.dll" DiskId="1" src="libcef.dll" /> 
 			</Component>
 		</DirectoryRef>
 	</Fragment>
+	
+	<Fragment Id="CefManagedCore">
+		<DirectoryRef Id="INSTALLDIR">
+			<Component Id="CefManagedCore" Guid="{1FE19512-221E-4B7A-A54D-982D40EB51CA}">
+				<File Id="CefSharp" Name="CefSharp.dll" DiskId="1" src="CefSharp.dll" /> 
+			</Component>
+		</DirectoryRef>
+	</Fragment>
+
 
 	<Fragment Id="CefDevTools">
 		<DirectoryRef Id="INSTALLDIR">
@@ -39,7 +47,7 @@
 		</DirectoryRef>
 	</Fragment>
 
-	<Fragment Id="CefCore">
+	<Fragment Id="CefWinForms">
 		<DirectoryRef Id="INSTALLDIR">
 			<Component Id="CefWinForms" Guid="{95263928-C13C-4353-A734-BD0176F99FB7}">
 				<File Id="CefSharp.WinForms" Name="CefSharp.WinForms.dll" DiskId="1" src="CefSharp.WinForms.dll" /> 
@@ -110,9 +118,19 @@
 	</Fragment>
 
 	<!-- Reference one of the following componentgroups from the Product feature -->
+	
+	<!-- Use this if you embed all the managed cef dlls (CefSharp.dll and the appropriate winforms or wpf dll) -->
+	<Fragment>
+		<ComponentGroup Id="CefUnmanagedOnly">
+			<ComponentRef Id="CefUnmanagedCore"/>
+			<ComponentRef Id="CefDevTools"/>
+			<ComponentRef Id="CefLocales"/>
+		</ComponentGroup>
+	</Fragment>
 	<Fragment>
 		<ComponentGroup Id="CefWithWpf">
-			<ComponentRef Id="CefCore"/>
+			<ComponentRef Id="CefUnmanagedCore"/>
+			<ComponentRef Id="CefManagedCore"/>
 			<ComponentRef Id="CefDevTools"/>
 			<ComponentRef Id="CefLocales"/>
 			<ComponentRef Id="CefWpf"/>
@@ -120,7 +138,8 @@
 	</Fragment>
 	<Fragment>
 		<ComponentGroup Id="CefWithWinForms">
-			<ComponentRef Id="CefCore"/>
+			<ComponentRef Id="CefUnmanagedCore"/>
+			<ComponentRef Id="CefManagedCore"/>
 			<ComponentRef Id="CefDevTools"/>
 			<ComponentRef Id="CefLocales"/>
 			<ComponentRef Id="CefWinForms"/>
