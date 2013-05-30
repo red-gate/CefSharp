@@ -110,26 +110,10 @@
 	</Fragment>
 
 	<!-- Reference one of the following componentgroups from the Product feature -->
-
-	<Fragment>
-		<ComponentGroup Id="CefWithWpfAndDevTools">
-			<ComponentRef Id="CefCore"/>
-			<ComponentRef Id="CefLocales"/>
-			<ComponentRef Id="CefDevTools"/>
-			<ComponentRef Id="CefWpf"/>
-		</ComponentGroup>
-	</Fragment>
-	<Fragment>
-		<ComponentGroup Id="CefWithWinFormsAndDevTools">
-			<ComponentRef Id="CefCore"/>
-			<ComponentRef Id="CefLocales"/>
-			<ComponentRef Id="CefDevTools"/>
-			<ComponentRef Id="CefWinForms"/>
-		</ComponentGroup>
-	</Fragment>
 	<Fragment>
 		<ComponentGroup Id="CefWithWpf">
 			<ComponentRef Id="CefCore"/>
+			<ComponentRef Id="CefDevTools"/>
 			<ComponentRef Id="CefLocales"/>
 			<ComponentRef Id="CefWpf"/>
 		</ComponentGroup>
@@ -137,6 +121,7 @@
 	<Fragment>
 		<ComponentGroup Id="CefWithWinForms">
 			<ComponentRef Id="CefCore"/>
+			<ComponentRef Id="CefDevTools"/>
 			<ComponentRef Id="CefLocales"/>
 			<ComponentRef Id="CefWinForms"/>
 		</ComponentGroup>
